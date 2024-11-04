@@ -1,13 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Controller;
 
-/**
- *
- * @author Luiz Fernando
- */
+import Model.User;
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserBC {
     
+    public static List<User> User  = new ArrayList<User>();
+    
+    public void salvarUsuario(User user){
+        if(email){
+            UserBC.User.add(user);
+        }
+    }
 }
