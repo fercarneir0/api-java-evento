@@ -5,8 +5,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 
 
-@Path("jakartaee11")
-public class JakartaEE11Resource {
+@Path("usuario")
+public class UserService {
     
     @GET
     public Response ping(){

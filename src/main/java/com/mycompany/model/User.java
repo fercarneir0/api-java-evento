@@ -1,10 +1,10 @@
 
-package Model;
+package com.mycompany.model;
 
 
 public class User {
     private String nome, email, senha, telefone;
-    boolean administrador;
+    boolean admin;
 
     public User() {
     }
@@ -13,7 +13,7 @@ public class User {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
-        this.administrador = administrador;
+        this.admin = administrador;
     }
 
     public String getNome() {
@@ -48,12 +48,12 @@ public class User {
         this.telefone = telefone;
     }
 
-    public boolean isAdministrador() {
-        return administrador;
+    public boolean isAdmin() {
+        return admin;
     }
 
-    public void setAdministrador(boolean administrador) {
-        this.administrador = administrador;
+    public void setAdministrador(boolean admin) {
+        this.admin = admin;
     }
    
 }
