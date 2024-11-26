@@ -5,8 +5,7 @@ import com.mycompany.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
-@RequestMapping("api/v1")
+
 public class UserBC {
     
     public static List<User> User  = new ArrayList<User>();
@@ -33,7 +32,9 @@ public class UserBC {
         return UserBC.User;
     }
     
-    public void alterarDados(User user){
-        
+    public String alterarDados(User user){
+        if(!checkAdmin(user) && User){
+            return "Somente um administrador pode alterar dados"
+        } 
     } 
 }
