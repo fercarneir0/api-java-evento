@@ -1,17 +1,17 @@
 package com.mycompany.model;
 
 public class User {
-    private String nome, email, senha, telefone;
+    private String nome, email, cpf, senha, telefone;
     boolean admin;
 
     public User() {
     }
-    
-    public User(String nome, String email, String senha, String telefone, boolean administrador){
+
+    public User(String nome, String email, String senha, String telefone, boolean admin){
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
-        this.admin = administrador;
+        this.admin = admin;
     }
 
     public String getNome() {
@@ -28,6 +28,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getSenha() {
@@ -50,8 +58,10 @@ public class User {
         return admin;
     }
 
-    public void setAdministrador(boolean admin) {
+    public void setAdmin(boolean admin) {
         this.admin = admin;
     }
+
+    
    
 }
