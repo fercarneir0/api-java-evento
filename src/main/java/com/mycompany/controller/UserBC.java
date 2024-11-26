@@ -19,12 +19,12 @@ public class UserBC {
         return user.isAdmin();
     }
     
-    public String salvarUsuario(User user){
+    public void salvarUsuario(User user){
         if(checkEmail(user.getEmail())){
             UserBC.User.add(user);
-            return "Usuário cadastrado com sucesso";
+            System.out.println("Usuário salvo com sucesso!");
         }else{
-            return "Já existe um usuário cadastrado com esse e-mail!";
+            System.out.println("Usuário salvo com sucesso!");
         }
     }
     
@@ -32,9 +32,19 @@ public class UserBC {
         return UserBC.User;
     }
     
-    public String alterarDados(User user){
-        if(!checkAdmin(user) && User){
-            return "Somente um administrador pode alterar dados"
-        } 
-    } 
+    public String alterarDados(User solicitante, User usuarioAlvo){
+        if(!checkAdmin(solicitante) && !solicitante.equals(usuarioAlvo)){
+            return "Somente um administrador pode alterar dados";
+        } else {
+            return "Usuário alterado com sucesso";
+        }
+    }
+    
+    public String removerUsuarios(User email){
+        if(!checkAdmin(email)){
+            return "Somente um administrador pode remover um usuário";
+        } else {
+            return "Usuário alterado com sucesso!";
+        }
+    }
 }

@@ -1,6 +1,4 @@
-
 package com.mycompany.model;
-
 
 public class User {
     private String nome, email, senha, telefone;

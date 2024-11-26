@@ -12,6 +12,9 @@ public class DatabaseConnection {
     
     
     public static Connection getConnection() throws SQLException {
+        if(URL == null || USER == null || PASSWORD == null ){
+            throw new IllegalStateException("Variaveis de ambiente não inicializadas");
+        }
         return (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
