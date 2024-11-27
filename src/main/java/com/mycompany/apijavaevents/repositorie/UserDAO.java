@@ -82,7 +82,6 @@ public class UserDAO {
                 return "Usuário não encontrado";
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             return "Erro ao deletar usuário" + e.getMessage();
         }
     }
@@ -107,8 +106,7 @@ public class UserDAO {
             } else {
                 return "Usuário não encontrado";
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException e){
             return "Erro ao promover o usuário a administrador " + e.getMessage();
         }
     }
@@ -116,22 +114,82 @@ public class UserDAO {
     public List<User> listarUsuarios() {
         String sql = "SELECT cpf, nome, email, administrador from usuario";
         List<User> users = new ArrayList<>();
-        
+
         Connection conn;
-        
+
         PreparedStatement statement;
-        
+
         try {
             conn = (Connection) DatabaseConnection.getConnection();
-            
+
             statement = conn.prepareStatement(sql);
-            
-            ResultSet rs = statement.executeQuery();
-            
-            while(rs.next()){
+
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
                 User user = new User();
-                user.setCpf(rs.getString("cpf"));
+                user.setCpf(result.getString("cpf"));
+                user.setNome(result.getString("nome"));
+                user.setEmail(result.getString("emmail"));
+                user.setAdmin(result.getBoolean("administrador"));
+
+                users.add(user);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar os usuários");
         }
+
+        return users;
     }
+
+    public boolean isAdmin(User user) {
+        String sql = "SELECT administrador from usuario WHERE email = ?";
+
+        Connection conn;
+
+        PreparedStatement statement;
+
+        try {
+            conn = (Connection) DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, user.getEmail());
+
+            ResultSet result = statement.executeQuery();
+            
+            if(result.next()){
+                return result.getBoolean("administrador");
+            } 
+        } catch (SQLException e){
+            throw new RuntimeException ("Erro ao verificar se o usuário é administrador" + e.getMessage());
+        }
+        return false;
+    }
+    
+    public String verificarEmail(User user) {
+        String sql = "SELECT from usuario WHERE email = ?";
+
+        Connection conn;
+
+        PreparedStatement statement;
+
+        try {
+            conn = (Connection) DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, user.getEmail());
+
+            ResultSet result = statement.executeQuery();
+            
+            if(result.next()){
+                return "Esse email já foi utilizado para cadastro";
+            } else {
+                return "Esse email não existe"; 
+            }
+        } catch (SQLException e){
+            return "Erro ao cadastrar usuário" + e.getMessage();
+        }
+    }  
 }
