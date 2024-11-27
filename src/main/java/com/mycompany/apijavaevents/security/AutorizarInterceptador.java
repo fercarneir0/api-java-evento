@@ -17,8 +17,8 @@ import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 
 @Provider
-@Autowired
-public class AutowiredIntercepter implements ContainerRequestFilter{
+@Autorizar
+public class AutorizarInterceptador implements ContainerRequestFilter{
     private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE")
                     .getBytes(StandardCharsets.UTF_8));
     
