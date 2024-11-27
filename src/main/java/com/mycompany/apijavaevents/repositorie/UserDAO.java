@@ -10,7 +10,7 @@ import java.util.List;
 
 public class UserDAO {
 
-    public String salvarUsuario(User user) {
+    public boolean salvarUsuario(User user) {
         String sql = "INSERT INTO usuario (nome, telefone, cpf, email, senha, administrador) VALUES (?,?,?,?,?,?)";
 
         Connection conn;
@@ -20,6 +20,7 @@ public class UserDAO {
             conn = (Connection) DatabaseConnection.getConnection();
 
             statement = conn.prepareStatement(sql);
+            
 
             statement.setString(1, user.getNome());
             statement.setString(2, user.getTelefone());
@@ -30,15 +31,16 @@ public class UserDAO {
 
             statement.executeUpdate();
 
-            return "Usuário salvo com sucesso";
+            return true;
 
         } catch (SQLException e) {
-            return ("Erro ao salvar o usuário" + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public String alterarUsuario(User user) {
-        String sql = "UPDATE usuario set nome = ?, telefone = , email = ?, senha = ? WHERE CPF = ?";
+    public boolean alterarUsuario(User user) {
+        String sql = "UPDATE usuario set nome = ?, telefone = ?, email = ?, senha = ? WHERE CPF = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -52,16 +54,18 @@ public class UserDAO {
             statement.setString(2, user.getTelefone());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getSenha());
+            statement.setString(5, user.getCpf());
 
             statement.executeUpdate();
 
-            return "Informacoes alteradas com sucesso";
+            return true;
         } catch (SQLException e) {
-            return ("Erro ao alterar informacoes do usuário" + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public String removerUsuario(User user) {
+    public boolean removerUsuario(String email) {
         String sql = "DELETE FROM usuario where email = ?";
 
         Connection conn;
@@ -72,21 +76,18 @@ public class UserDAO {
 
             statement = conn.prepareStatement(sql);
 
-            statement.setString(1, user.getEmail());
+            statement.setString(1, email);
 
             int rowAffected = statement.executeUpdate();
 
-            if (rowAffected > 0) {
-                return "Usuário removido com sucesso";
-            } else {
-                return "Usuário não encontrado";
-            }
+            return rowAffected > 0;
         } catch (SQLException e) {
-            return "Erro ao deletar usuário" + e.getMessage();
+            e.printStackTrace();
+            return false;
         }
     }
 
-    public String promoverAdministrador(User user) {
+    public boolean promoverAdministrador(String email) {
         String sql = "UPDATE usuario set administrador = true WHERE email = ?";
 
         Connection conn;
@@ -97,18 +98,15 @@ public class UserDAO {
 
             statement = conn.prepareStatement(sql);
 
-            statement.setString(1, user.getEmail());
+            statement.setString(1, email);
 
             int rowAffected = statement.executeUpdate();
 
-            if (rowAffected > 0) {
-                return "Usuário promovido a administrador";
-            } else {
-                return "Usuário não encontrado";
-            }
+            return rowAffected > 0;
         } catch (SQLException e){
-            return "Erro ao promover o usuário a administrador " + e.getMessage();
-        }
+            e.printStackTrace();
+            return false;
+        }   
     }
 
     public List<User> listarUsuarios() {
@@ -130,7 +128,7 @@ public class UserDAO {
                 User user = new User();
                 user.setCpf(result.getString("cpf"));
                 user.setNome(result.getString("nome"));
-                user.setEmail(result.getString("emmail"));
+                user.setEmail(result.getString("email"));
                 user.setAdmin(result.getBoolean("administrador"));
 
                 users.add(user);
@@ -142,7 +140,7 @@ public class UserDAO {
         return users;
     }
 
-    public boolean isAdmin(User user) {
+    public static boolean isAdmin(User user) {
         String sql = "SELECT administrador from usuario WHERE email = ?";
 
         Connection conn;
@@ -167,7 +165,7 @@ public class UserDAO {
         return false;
     }
     
-    public String verificarEmail(User user) {
+    public boolean verificarEmail(User user) {
         String sql = "SELECT from usuario WHERE email = ?";
 
         Connection conn;
@@ -184,12 +182,36 @@ public class UserDAO {
             ResultSet result = statement.executeQuery();
             
             if(result.next()){
-                return "Esse email já foi utilizado para cadastro";
-            } else {
-                return "Esse email não existe"; 
+                System.out.println("Já existe um usuário com esse email");
             }
         } catch (SQLException e){
-            return "Erro ao cadastrar usuário" + e.getMessage();
+            System.out.println("Email não encontrado" + e.getMessage());
         }
-    }  
+        return true;
+    }
+    
+    public boolean verificarCPF(User user){
+        String sql = "SELECT from usuario WHERE cpf = ?";
+
+        Connection conn;
+
+        PreparedStatement statement;
+
+        try {
+            conn = (Connection) DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, user.getCpf());
+
+            ResultSet result = statement.executeQuery();
+            
+            if(result.next()){
+                System.out.println("Já existe um usuário com esse CPF");
+            }
+        } catch (SQLException e){
+            System.out.println("Não existe um usuário com esse CPF" + e.getMessage());
+        } 
+        return true;
+    }
 }

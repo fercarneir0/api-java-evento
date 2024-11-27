@@ -49,7 +49,39 @@ public class UserBC {
             throw new Exception("Erro: " + e.getMessage());
         }
     }
+    public boolean salvarUuario(User user){
+        if(userDAO.verificarCPF(user) || userDAO.verificarEmail(user)){
+            userDAO.salvarUsuario(user);
+        }
+        return true;
+    }
+    public boolean alterarUsuario(User user){
+        if(isAdmin(user)){
+            return userDAO.alterarUsuario(user);
+        }
+        return true;
+    }
     
+    public boolean removerUsuario(String email, User user){
+        if(userDAO.isAdmin(user)){
+           return userDAO.removerUsuario(email);
+        }
+        return true;
+    }
     
-
+    public boolean promoverAdministrador(String email, User user){
+        if(userDAO.isAdmin(user)){
+           userDAO.promoverAdministrador(email);
+        }
+        return false;
+    }
+    
+    public List<User> listarUsuarios(){
+        return userDAO.listarUsuarios();
+    }
+    
+    public boolean isAdmin(User user){
+      return UserDAO.isAdmin(user);
+    }
+    
 }
