@@ -33,9 +33,8 @@ public class UserService {
     @Path("salvar")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Autorizar
     private Response salvarUsuario(User user) {
-        boolean sucesso = bc.salvarUuario(user);
+        boolean sucesso = bc.salvarUsuario(user);
         try {
             if (sucesso) {
                 return Response.status(Response.Status.OK)
