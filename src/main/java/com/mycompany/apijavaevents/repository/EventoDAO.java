@@ -1,6 +1,5 @@
 package com.mycompany.apijavaevents.repository;
 
-
 import com.mycompany.model.Evento;
 import java.sql.*;
 import java.util.ArrayList;
@@ -82,6 +81,25 @@ public class EventoDAO {
         String sql = "DELETE FROM evento WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void atualizar(Evento evento) throws SQLException {
+        String sql = "UPDATE evento SET nome = ?, dataInicio = ?, dataFim = ?, local = ?, descricao = ?, " +
+                     "numeroVagas = ?, dataLimiteInscricao = ?, cpfResponsavel = ?, emailResponsavel = ? " +
+                     "WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, evento.getNome());
+            stmt.setString(2, evento.getDataInicio());
+            stmt.setString(3, evento.getDataFim());
+            stmt.setString(4, evento.getLocal());
+            stmt.setString(5, evento.getDescricao());
+            stmt.setInt(6, evento.getNumeroVagas());
+            stmt.setString(7, evento.getDataLimiteInscricao());
+            stmt.setString(8, evento.getCpfResponsavel());
+            stmt.setString(9, evento.getEmailResponsavel());
+            stmt.setString(10, evento.getId());
             stmt.executeUpdate();
         }
     }

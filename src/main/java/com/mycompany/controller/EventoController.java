@@ -60,4 +60,15 @@ public class EventoController {
         }
         return false;
     }
+
+    // Método de atualização
+    public void atualizarEvento(String idEvento, Evento eventoAtualizado) {
+        Evento eventoExistente = buscarEventoPorId(idEvento);
+        if (eventoExistente != null) {
+            // Atualiza o evento existente com as informações do evento atualizado
+            eventoExistente.atualizarEvento(eventoAtualizado);
+        } else {
+            throw new IllegalArgumentException("Evento com ID " + idEvento + " não encontrado.");
+        }
+    }
 }

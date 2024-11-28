@@ -1,6 +1,5 @@
 package com.mycompany.apijavaevents.resources;
 
-
 import com.mycompany.apijavaevents.Validator.EventoValidator;
 import com.mycompany.apijavaevents.Validator.ParticipanteValidator;
 import com.mycompany.apijavaevents.Validator.ProgramacaoValidator;
@@ -10,7 +9,6 @@ import com.mycompany.model.Participante;
 import com.mycompany.model.Programacao;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
 import java.util.List;
 
 @Path("evento")
@@ -23,6 +21,10 @@ public class EventoService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Evento> listarEventos() {
         List<Evento> eventos = eventoController.listarEventos();
+
+        if (eventos.isEmpty()) {
+            throw new WebApplicationException("Nenhum evento encontrado", 404);
+        }
         return eventos;
     }
 
@@ -39,6 +41,25 @@ public class EventoService {
             throw new WebApplicationException("Erro ao criar evento: " + e.getMessage(), 400);
         }
     }
+    // Atualizar um evento
+    @PUT
+    @Path("{idEvento}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String atualizarEvento(@PathParam("idEvento") String idEvento, Evento evento) {
+        try {
+            Evento eventoExistente = eventoController.buscarEventoPorId(idEvento);
+            if (eventoExistente == null) {
+                throw new WebApplicationException("Evento não encontrado", 404);
+            }
+            EventoValidator.validarEvento(evento);
+            eventoController.atualizarEvento(idEvento, evento);
+            return "{\"mensagem\":\"Evento atualizado com sucesso\"}";
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException("Erro ao atualizar evento: " + e.getMessage(), 400);
+        }
+    }
+
     // Inscrever um participante em um evento
 
     @POST

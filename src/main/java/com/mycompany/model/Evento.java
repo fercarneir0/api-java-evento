@@ -20,13 +20,11 @@ public class Evento {
     private String cpfResponsavel;
     private String emailResponsavel;
 
-    // Formato para converter datas
+    
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // Construtor vazio necessário para frameworks de serialização/deserialização
     public Evento() {}
 
-    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -123,21 +121,56 @@ public class Evento {
         this.emailResponsavel = emailResponsavel;
     }
 
-    // Adicionar um participante à lista de inscritos
+   
     public void adicionarInscrito(Participante participante) {
         if (inscritos.size() >= numeroVagas) {
             throw new IllegalStateException("Número máximo de vagas atingido.");
         }
         inscritos.add(participante);
     }
+    
+    public boolean removerInscrito(String cpf) {
+        return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
+    }
 
-    // Remover um participante da lista de inscritos pelo CPF
-   // public boolean removerInscrito(String cpf) {
-     //   return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
-    //}
+  
+    public void adicionarProgramacao(Programacao programacaoItem) {
+        programacao.add(programacaoItem);
+    }
 
-    // Adicionar um item à programação do evento
-    //public void adicionarProgramacao(Programacao programacaoItem) {
-      //  programacao.add(programacaoItem);
-    //}
+ 
+    public void atualizarEvento(Evento eventoAtualizado) {
+       
+        if (eventoAtualizado.getNome() != null) {
+            this.nome = eventoAtualizado.getNome();
+        }
+        if (eventoAtualizado.getDataInicio() != null) {
+            this.dataInicio = eventoAtualizado.dataInicio;
+        }
+        if (eventoAtualizado.getDataFim() != null) {
+            this.dataFim = eventoAtualizado.dataFim;
+        }
+        if (eventoAtualizado.getLocal() != null) {
+            this.local = eventoAtualizado.getLocal();
+        }
+        if (eventoAtualizado.getDescricao() != null) {
+            this.descricao = eventoAtualizado.getDescricao();
+        }
+        if (eventoAtualizado.getNumeroVagas() > 0) {
+            this.numeroVagas = eventoAtualizado.getNumeroVagas();
+        }
+        if (eventoAtualizado.getDataLimiteInscricao() != null) {
+            this.dataLimiteInscricao = eventoAtualizado.dataLimiteInscricao;
+        }
+        if (eventoAtualizado.getCpfResponsavel() != null) {
+            this.cpfResponsavel = eventoAtualizado.getCpfResponsavel();
+        }
+        if (eventoAtualizado.getEmailResponsavel() != null) {
+            this.emailResponsavel = eventoAtualizado.getEmailResponsavel();
+        }
+       
+        if (eventoAtualizado.getProgramacao() != null && !eventoAtualizado.getProgramacao().isEmpty()) {
+            this.programacao = eventoAtualizado.getProgramacao();
+        }
+    }
 }

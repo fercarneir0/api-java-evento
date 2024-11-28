@@ -72,6 +72,22 @@ public class PalestraDAO {
         return null;
     }
 
+    public void atualizar(Palestra palestra) throws SQLException {
+        String sql = "UPDATE palestra SET titulo = ?, palestrante = ?, data = ?, local = ?, descricao = ?, " +
+                     "numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, palestra.getTitulo());
+            stmt.setString(2, palestra.getPalestrante());
+            stmt.setTimestamp(3, Timestamp.valueOf(palestra.getData()));
+            stmt.setString(4, palestra.getLocal());
+            stmt.setString(5, palestra.getDescricao());
+            stmt.setInt(6, palestra.getNumeroVagas());
+            stmt.setTimestamp(7, Timestamp.valueOf(palestra.getDataLimiteInscricao()));
+            stmt.setString(8, palestra.getId());
+            stmt.executeUpdate();
+        }
+    }
+
     public void deletarPorId(String id) throws SQLException {
         String sql = "DELETE FROM palestra WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

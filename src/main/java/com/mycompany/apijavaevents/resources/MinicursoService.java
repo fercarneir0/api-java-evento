@@ -1,13 +1,11 @@
 package com.mycompany.apijavaevents.resources;
 
-
-
 import com.mycompany.controller.MinicursoController;
 import com.mycompany.model.Minicurso;
 import com.mycompany.model.Participante;
-import com.mycompany.model.Programacao;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.List;
 
 @Path("minicurso")
@@ -27,6 +25,19 @@ public class MinicursoService {
     public String criarMinicurso(Minicurso minicurso) {
         minicursoController.criarMinicurso(minicurso);
         return "{\"mensagem\":\"Minicurso criado com sucesso\"}";
+    }
+
+    @PUT
+    @Path("{idMinicurso}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String atualizarMinicurso(@PathParam("idMinicurso") String idMinicurso, Minicurso minicursoAtualizado) {
+        try {
+            minicursoController.atualizarMinicurso(idMinicurso, minicursoAtualizado);
+            return "{\"mensagem\":\"Minicurso atualizado com sucesso\"}";
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException("Erro ao atualizar minicurso: " + e.getMessage(), 400);
+        }
     }
 
     @POST
@@ -61,27 +72,7 @@ public class MinicursoService {
         if (sucesso) {
             return "{\"mensagem\":\"Participante removido com sucesso\"}";
         } else {
-            throw new WebApplicationException("Participante não encontrado", 404);
+            throw new WebApplicationException("Erro ao remover participante", 404);
         }
-    }
-
-    @POST
-    @Path("{idMinicurso}/programacao")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public String adicionarProgramacao(@PathParam("idMinicurso") String idMinicurso, Programacao programacao) {
-        boolean sucesso = minicursoController.adicionarProgramacao(idMinicurso, programacao);
-        if (sucesso) {
-            return "{\"mensagem\":\"Programação adicionada com sucesso\"}";
-        } else {
-            throw new WebApplicationException("Minicurso não encontrado", 404);
-        }
-    }
-
-    @GET
-    @Path("{idMinicurso}/programacao")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Programacao> listarProgramacao(@PathParam("idMinicurso") String idMinicurso) {
-        return minicursoController.listarProgramacao(idMinicurso);
     }
 }
