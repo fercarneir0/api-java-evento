@@ -1,6 +1,7 @@
 package com.mycompany.apijavaevents.repository;
 
 import com.mycompany.model.Minicurso;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,24 @@ public class MinicursoDAO {
             }
         }
         return null;
+    }
+
+    public void atualizar(Minicurso minicurso) throws SQLException {
+        String sql = "UPDATE minicurso SET nome = ?, data = ?, local = ?, descricao = ?, nomeInstrutor = ?, cpfInstrutor = ?, " +
+                     "emailInstrutor = ?, numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, minicurso.getNome());
+            stmt.setTimestamp(2, Timestamp.valueOf(minicurso.getData()));
+            stmt.setString(3, minicurso.getLocal());
+            stmt.setString(4, minicurso.getDescricao());
+            stmt.setString(5, minicurso.getNomeInstrutor());
+            stmt.setString(6, minicurso.getCpfInstrutor());
+            stmt.setString(7, minicurso.getEmailInstrutor());
+            stmt.setInt(8, minicurso.getNumeroVagas());
+            stmt.setTimestamp(9, Timestamp.valueOf(minicurso.getDataLimiteInscricao()));
+            stmt.setString(10, minicurso.getId());
+            stmt.executeUpdate();
+        }
     }
 
     public void deletarPorId(String id) throws SQLException {

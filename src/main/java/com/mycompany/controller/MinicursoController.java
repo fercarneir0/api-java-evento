@@ -1,8 +1,5 @@
 package com.mycompany.controller;
 
-
-
-
 import com.mycompany.model.Minicurso;
 import com.mycompany.model.Participante;
 import com.mycompany.model.Programacao;
@@ -66,5 +63,23 @@ public class MinicursoController {
             return true;
         }
         return false;
+    }
+
+    // Método para atualizar o minicurso
+    public void atualizarMinicurso(String idMinicurso, Minicurso minicursoAtualizado) {
+        Minicurso minicursoExistente = buscarMinicursoPorId(idMinicurso);
+
+        if (minicursoExistente != null) {
+            // Atualiza os dados do minicurso existente com os dados do minicurso atualizado
+            minicursoExistente.setNome(minicursoAtualizado.getNome());
+            minicursoExistente.setDescricao(minicursoAtualizado.getDescricao());
+            minicursoExistente.setData(minicursoAtualizado.getData());
+            minicursoExistente.setLocal(minicursoAtualizado.getLocal());
+            minicursoExistente.setCapacidade(minicursoAtualizado.getCapacidade());
+            minicursoExistente.setProgramacao(minicursoAtualizado.getProgramacao());
+            minicursoExistente.setInscritos(minicursoAtualizado.getInscritos());
+        } else {
+            throw new IllegalArgumentException("Minicurso com ID " + idMinicurso + " não encontrado.");
+        }
     }
 }

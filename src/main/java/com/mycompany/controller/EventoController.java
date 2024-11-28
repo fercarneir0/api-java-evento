@@ -1,8 +1,5 @@
 package com.mycompany.controller;
 
-
-
-
 import com.mycompany.model.Evento;
 import com.mycompany.model.Participante;
 import com.mycompany.model.Programacao;
@@ -62,5 +59,16 @@ public class EventoController {
             return true;
         }
         return false;
+    }
+
+    // Método de atualização
+    public void atualizarEvento(String idEvento, Evento eventoAtualizado) {
+        Evento eventoExistente = buscarEventoPorId(idEvento);
+        if (eventoExistente != null) {
+            // Atualiza o evento existente com as informações do evento atualizado
+            eventoExistente.atualizarEvento(eventoAtualizado);
+        } else {
+            throw new IllegalArgumentException("Evento com ID " + idEvento + " não encontrado.");
+        }
     }
 }

@@ -1,13 +1,11 @@
 package com.mycompany.apijavaevents.resources;
 
-
-
-
 import com.mycompany.controller.PalestraController;
 import com.mycompany.model.Palestra;
 import com.mycompany.model.Participante;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
 import java.util.List;
 
 @Path("palestra")
@@ -29,6 +27,19 @@ public class PalestraService {
         return "{\"mensagem\":\"Palestra criada com sucesso\"}";
     }
 
+    @PUT
+    @Path("{idPalestra}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String atualizarPalestra(@PathParam("idPalestra") String idPalestra, Palestra palestraAtualizada) {
+        try {
+            palestraController.atualizarPalestra(idPalestra, palestraAtualizada);
+            return "{\"mensagem\":\"Palestra atualizada com sucesso\"}";
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException("Erro ao atualizar palestra: " + e.getMessage(), 400);
+        }
+    }
+
     @POST
     @Path("{idPalestra}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -38,19 +49,8 @@ public class PalestraService {
         if (sucesso) {
             return "{\"mensagem\":\"Inscrição realizada com sucesso\"}";
         } else {
-            throw new WebApplicationException("Palestra não encontrada ou número máximo de vagas atingido", 404);
-        }
-    }
-
-    @GET
-    @Path("{idPalestra}/inscritos")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Participante> obterInscritos(@PathParam("idPalestra") String idPalestra) {
-        Palestra palestra = palestraController.buscarPalestraPorId(idPalestra);
-        if (palestra == null) {
             throw new WebApplicationException("Palestra não encontrada", 404);
         }
-        return palestra.getInscritos();
     }
 
     @DELETE
@@ -61,7 +61,7 @@ public class PalestraService {
         if (sucesso) {
             return "{\"mensagem\":\"Participante removido com sucesso\"}";
         } else {
-            throw new WebApplicationException("Participante não encontrado", 404);
+            throw new WebApplicationException("Erro ao remover participante", 404);
         }
     }
 }

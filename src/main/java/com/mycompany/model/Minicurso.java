@@ -1,7 +1,5 @@
 package com.mycompany.model;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,39 +7,34 @@ public class Minicurso {
 
     private String id;
     private String nome;
-    private LocalDateTime data; // Alterado para LocalDateTime
-    private String local;
     private String descricao;
+    private String data;
+    private String local;
+    private int capacidade;
     private String nomeInstrutor;
     private String cpfInstrutor;
     private String emailInstrutor;
     private int numeroVagas;
-    private LocalDateTime dataLimiteInscricao; // Alterado para LocalDateTime
-    private List<Participante> inscritos;
-    private List<Programacao> programacao;
+    private String dataLimiteInscricao;
 
-    public Minicurso() {
-        this.inscritos = new ArrayList<>();
-        this.programacao = new ArrayList<>();
-    }
+    // Relacionamentos
+    private List<Programacao> programacao = new ArrayList<>();
+    private List<Participante> inscritos = new ArrayList<>();
 
-    public Minicurso(String id, String nome, LocalDateTime data, String local, String descricao,
-                     String nomeInstrutor, String cpfInstrutor, String emailInstrutor,
-                     int numeroVagas, LocalDateTime dataLimiteInscricao) {
+    // Construtores
+    public Minicurso() {}
+
+    public Minicurso(String id, String nome, String descricao, String data, String local, int capacidade) {
         this.id = id;
         this.nome = nome;
+        this.descricao = descricao;
         this.data = data;
         this.local = local;
-        this.descricao = descricao;
-        this.nomeInstrutor = nomeInstrutor;
-        this.cpfInstrutor = cpfInstrutor;
-        this.emailInstrutor = emailInstrutor;
-        this.numeroVagas = numeroVagas;
-        this.dataLimiteInscricao = dataLimiteInscricao;
-        this.inscritos = new ArrayList<>();
-        this.programacao = new ArrayList<>();
+        this.capacidade = capacidade;
+        this.numeroVagas = capacidade; // Por padrão, número de vagas é igual à capacidade
     }
 
+    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -58,13 +51,20 @@ public class Minicurso {
         this.nome = nome;
     }
 
-    public LocalDateTime getData() {
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getData() {
         return data;
     }
 
     public void setData(String data) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        this.data = LocalDateTime.parse(data, formatter);
+        this.data = data;
     }
 
     public String getLocal() {
@@ -75,12 +75,31 @@ public class Minicurso {
         this.local = local;
     }
 
-    public String getDescricao() {
-        return descricao;
+    public int getCapacidade() {
+        return capacidade;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setCapacidade(int capacidade) {
+        if (capacidade < 0) {
+            throw new IllegalArgumentException("Capacidade não pode ser negativa.");
+        }
+        this.capacidade = capacidade;
+    }
+
+    public List<Programacao> getProgramacao() {
+        return programacao;
+    }
+
+    public void setProgramacao(List<Programacao> programacao) {
+        this.programacao = programacao;
+    }
+
+    public List<Participante> getInscritos() {
+        return inscritos;
+    }
+
+    public void setInscritos(List<Participante> inscritos) {
+        this.inscritos = inscritos;
     }
 
     public String getNomeInstrutor() {
@@ -112,47 +131,36 @@ public class Minicurso {
     }
 
     public void setNumeroVagas(int numeroVagas) {
+        if (numeroVagas < 0 || numeroVagas > this.capacidade) {
+            throw new IllegalArgumentException("Número de vagas inválido.");
+        }
         this.numeroVagas = numeroVagas;
     }
 
-    public LocalDateTime getDataLimiteInscricao() {
+    public String getDataLimiteInscricao() {
         return dataLimiteInscricao;
     }
 
     public void setDataLimiteInscricao(String dataLimiteInscricao) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        this.dataLimiteInscricao = LocalDateTime.parse(dataLimiteInscricao, formatter);
-    }
-
-    public List<Participante> getInscritos() {
-        return inscritos;
-    }
-
-    public void setInscritos(List<Participante> inscritos) {
-        this.inscritos = inscritos;
-    }
-
-    public List<Programacao> getProgramacao() {
-        return programacao;
-    }
-
-    public void setProgramacao(List<Programacao> programacao) {
-        this.programacao = programacao;
-    }
-
-    public void adicionarInscrito(Participante participante) {
-        if (inscritos.size() < numeroVagas) {
-            this.inscritos.add(participante);
-        } else {
-            throw new IllegalStateException("Número máximo de vagas atingido.");
+        if (dataLimiteInscricao == null || dataLimiteInscricao.isEmpty()) {
+            throw new IllegalArgumentException("Data limite de inscrição não pode ser vazia.");
         }
+        this.dataLimiteInscricao = dataLimiteInscricao;
+    }
+
+    // Métodos para manipulação
+    public void adicionarProgramacao(Programacao novaProgramacao) {
+        this.programacao.add(novaProgramacao);
     }
 
     public boolean removerInscrito(String cpf) {
-        return this.inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
+        return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
     }
 
-    public void adicionarProgramacao(Programacao programacao) {
-        this.programacao.add(programacao);
+    public void adicionarInscrito(Participante participante) {
+        if (this.inscritos.size() >= this.numeroVagas) {
+            throw new IllegalStateException("Número de vagas excedido.");
+        }
+        this.inscritos.add(participante);
     }
 }
