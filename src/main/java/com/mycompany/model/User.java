@@ -4,12 +4,11 @@ public class User {
     private String nome, email, cpf, senha, telefone;
     boolean admin;
 
-    public User() {
-    }
-
-    public User(String nome, String email, String senha, String telefone, boolean admin){
+    public User() {}
+    public User(String nome, String email, String cpf, String senha, String telefone, boolean admin){
         this.nome = nome;
         this.email = email;
+        this.cpf = cpf;
         this.telefone = telefone;
         this.admin = admin;
     }

@@ -1,6 +1,5 @@
 package com.mycompany.apijavaevents.resources;
 
-
 import com.mycompany.controller.EventoController;
 import com.mycompany.model.Evento;
 import com.mycompany.model.Participante;
@@ -16,15 +15,11 @@ public class EventoService {
 
     // Listar todos os eventos
     @GET
-@Produces(MediaType.APPLICATION_JSON)
-public List<Evento> listarEventos() {
-    List<Evento> eventos = eventoController.listarEventos();
-    if (eventos.isEmpty()) {
-        throw new WebApplicationException("Nenhum evento encontrado", 404);
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Evento> listarEventos() {
+        List<Evento> eventos = eventoController.listarEventos();
+        return eventos;
     }
-    return eventos;
-}
-
 
     // Criar um novo evento
     @POST
@@ -39,8 +34,8 @@ public List<Evento> listarEventos() {
             throw new WebApplicationException("Erro ao criar evento: " + e.getMessage(), 400);
         }
     }
-
     // Inscrever um participante em um evento
+
     @POST
     @Path("{idEvento}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -57,8 +52,8 @@ public List<Evento> listarEventos() {
             throw new WebApplicationException("Erro ao inscrever participante: " + e.getMessage(), 400);
         }
     }
-
     // Obter participantes inscritos em um evento
+
     @GET
     @Path("{idEvento}/inscritos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -73,8 +68,8 @@ public List<Evento> listarEventos() {
         }
         return inscritos;
     }
-
     // Remover um participante inscrito de um evento
+
     @DELETE
     @Path("{idEvento}/inscricao/{cpf}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -89,8 +84,8 @@ public List<Evento> listarEventos() {
         }
         return "{\"mensagem\":\"Participante removido com sucesso\"}";
     }
-
     // Adicionar programação a um evento
+
     @POST
     @Path("{idEvento}/programacao")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -107,8 +102,8 @@ public List<Evento> listarEventos() {
             throw new WebApplicationException("Erro ao adicionar programação: " + e.getMessage(), 400);
         }
     }
-
     // Listar programação de um evento
+
     @GET
     @Path("{idEvento}/programacao")
     @Produces(MediaType.APPLICATION_JSON)

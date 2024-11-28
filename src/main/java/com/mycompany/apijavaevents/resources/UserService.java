@@ -15,34 +15,36 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import com.mycompany.apijavaevents.security.Autorizar;
+import com.mycompany.controller.EventoController;
+import com.mycompany.model.Evento;
 import com.mycompany.model.Requester;
 
 @Path("usuario")
 public class UserService {
 
     private UserBC bc = new UserBC();
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Autorizar
-    private List<User> listarUsuarios(){
+    // @Autorizar
+    public List<User> listarUsuarios() {
         return bc.listarUsuarios();
     }
-    
+
     @POST
     @Path("salvar")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    private Response salvarUsuario(User user) {
+    public Response salvarUsuario(User user) {
         boolean sucesso = bc.salvarUsuario(user);
         try {
             if (sucesso) {
                 return Response.status(Response.Status.OK)
-                    .entity("{\"mensagem\": \"Usuário salvar com sucesso\"}")
-                    .build();
+                     .entity("{\"mensagem\": \"Usuário salvo com sucesso\"}")
+                     .build();
             }
-            
-             return Response.status(Response.Status.FORBIDDEN)
+
+            return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"mensagem\": \"Não foi possível salvar o usuário\"}")
                     .build();
         } catch (Exception e) {
@@ -51,85 +53,84 @@ public class UserService {
                     .build();
         }
     }
-    
-    
+
     @PUT
     @Path("alterar/{cpf}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    private Response alterarUsuario(String cpf, User user){
+    public Response alterarUsuario(String cpf, User user) {
         boolean sucesso = bc.alterarUsuario(user);
-        
-        try{
-            if(sucesso){
+
+        try {
+            if (sucesso) {
                 return Response.status(Response.Status.OK)
-                    .entity("{\"mensagem\": \"Usuário alterado com sucesso\"}")
-                    .build();
+                        .entity("{\"mensagem\": \"Usuário alterado com sucesso\"}")
+                        .build();
             }
-            
+
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"mensagem\": \"Você não tem permissão para alterar o usuário\"}")
                     .build();
-        }catch(Exception e){
+        } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
-                .build();
+                    .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
+                    .build();
         }
     }
-    
+
     @DELETE
-    @Path("remover")
+    @Path("remover/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    private Response removerUsuario(Requester request){
+    public Response removerUsuario(Requester request) {
         String email = request.getEmail();
         User user = request.getUser();
         boolean sucesso = bc.removerUsuario(email, user);
-        
-        try{
-            if(sucesso){
+
+        try {
+            if (sucesso) {
                 return Response.status(Response.Status.OK)
-                    .entity("{\"mensagem\": \"Usuário removido com sucesso\"}")
-                    .build();
+                        .entity("{\"mensagem\": \"Usuário removido com sucesso\"}")
+                        .build();
             }
-            
+
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"mensagem\": \"Você não tem permissão para remover o usuário\"}")
                     .build();
-        }catch(Exception e){
+        } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
-                .build();
+                    .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
+                    .build();
         }
     }
-    
+
     @PUT
-    @Path("promover")
+    @Path("promover/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    private Response promoverAdministrador(Requester request){
-       
-       String email = request.getEmail();
-       User user = request.getUser();
-       boolean sucesso = bc.promoverAdministrador(email, user);
-        
-        try{
-            if(sucesso){
+    public Response promoverAdministrador(Requester request) {
+
+        String email = request.getEmail();
+        User user = request.getUser();
+        boolean sucesso = bc.promoverAdministrador(email, user);
+
+        try {
+            if (sucesso) {
                 return Response.status(Response.Status.OK)
-                    .entity("{\"mensagem\": \"Usuário promovido a administrador\"}")
-                    .build();
+                        .entity("{\"mensagem\": \"Usuário promovido a administrador\"}")
+                        .build();
             }
-            
+
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"mensagem\": \"Você não tem permissão para promover o usuário\"}")
                     .build();
-        }catch(Exception e){
+        } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
-                .build();
-            } 
+                    .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
+                    .build();
+        }
     }
 }
