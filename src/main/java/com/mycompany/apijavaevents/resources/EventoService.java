@@ -1,9 +1,13 @@
 package com.mycompany.apijavaevents.resources;
 
 
+import com.mycompany.apijavaevents.Validator.EventoValidator;
+import com.mycompany.apijavaevents.Validator.ParticipanteValidator;
+import com.mycompany.apijavaevents.Validator.ProgramacaoValidator;
 import com.mycompany.controller.EventoController;
 import com.mycompany.model.Evento;
 import com.mycompany.model.Participante;
+import com.mycompany.model.Programacao;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
