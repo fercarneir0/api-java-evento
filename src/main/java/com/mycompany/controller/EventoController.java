@@ -1,8 +1,5 @@
 package com.mycompany.controller;
 
-
-
-
 import com.mycompany.model.Evento;
 import com.mycompany.model.Participante;
 import com.mycompany.model.Programacao;

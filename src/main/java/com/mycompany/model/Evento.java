@@ -132,12 +132,12 @@ public class Evento {
     }
 
     // Remover um participante da lista de inscritos pelo CPF
-    public boolean removerInscrito(String cpf) {
-        return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
-    }
+   // public boolean removerInscrito(String cpf) {
+     //   return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
+    //}
 
     // Adicionar um item à programação do evento
-    public void adicionarProgramacao(Programacao programacaoItem) {
-        programacao.add(programacaoItem);
-    }
+    //public void adicionarProgramacao(Programacao programacaoItem) {
+      //  programacao.add(programacaoItem);
+    //}
 }
