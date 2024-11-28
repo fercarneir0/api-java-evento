@@ -2,15 +2,25 @@ package com.mycompany.model;
 
 public class User {
     private String nome, email, cpf, senha, telefone;
+    private int id;
     boolean admin;
 
     public User() {}
-    public User(String nome, String email, String cpf, String senha, String telefone, boolean admin){
+    public User(int id, String nome, String email, String cpf, String senha, String telefone, boolean admin){
+        this.id = id;
         this.nome = nome;
         this.email = email;
         this.cpf = cpf;
         this.telefone = telefone;
         this.admin = admin;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNome() {
