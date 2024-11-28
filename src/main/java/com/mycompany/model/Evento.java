@@ -128,7 +128,6 @@ public class Evento {
         }
         inscritos.add(participante);
     }
-
     
     public boolean removerInscrito(String cpf) {
         return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
