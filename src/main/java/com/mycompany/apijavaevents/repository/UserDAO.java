@@ -1,4 +1,4 @@
-package com.mycompany.apijavaevents.repositorie;
+package com.mycompany.apijavaevents.repository;
 
 import com.mycompany.model.User;
 import java.sql.Connection;
@@ -11,6 +11,10 @@ import java.util.List;
 public class UserDAO {
 
     public boolean salvarUsuario(User user) {
+        
+        if(!verificarEmail(user) || !verificarCPF(user)){
+            return false;
+        }
         String sql = "INSERT INTO usuario (nome, telefone, cpf, email, senha, administrador) VALUES (?,?,?,?,?,?)";
 
         Connection conn;
@@ -40,6 +44,11 @@ public class UserDAO {
     }
 
     public boolean alterarUsuario(User user) {
+        
+        if(!isAdmin(user)){
+            return false;
+        }
+        
         String sql = "UPDATE usuario set nome = ?, telefone = ?, email = ?, senha = ? WHERE CPF = ?";
 
         Connection conn;
@@ -65,7 +74,11 @@ public class UserDAO {
         }
     }
 
-    public boolean removerUsuario(String email) {
+    public boolean removerUsuario(String email, User user) {
+        if(!isAdmin(user)){
+            return false;
+        }
+        
         String sql = "DELETE FROM usuario where email = ?";
 
         Connection conn;
@@ -87,7 +100,10 @@ public class UserDAO {
         }
     }
 
-    public boolean promoverAdministrador(String email) {
+    public boolean promoverAdministrador(String email, User user) {
+        if(!isAdmin(user)){
+            return false;
+        }
         String sql = "UPDATE usuario set administrador = true WHERE email = ?";
 
         Connection conn;
@@ -140,7 +156,7 @@ public class UserDAO {
         return users;
     }
 
-    public static boolean isAdmin(User user) {
+    public boolean isAdmin(User user) {
         String sql = "SELECT administrador from usuario WHERE email = ?";
 
         Connection conn;
@@ -166,7 +182,7 @@ public class UserDAO {
     }
     
     public boolean verificarEmail(User user) {
-        String sql = "SELECT from usuario WHERE email = ?";
+        String sql = "SELECT * from usuario WHERE email = ?";
 
         Connection conn;
 
@@ -191,7 +207,7 @@ public class UserDAO {
     }
     
     public boolean verificarCPF(User user){
-        String sql = "SELECT from usuario WHERE cpf = ?";
+        String sql = "SELECT * from usuario WHERE cpf = ?";
 
         Connection conn;
 

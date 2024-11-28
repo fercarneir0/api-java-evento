@@ -1,4 +1,4 @@
-package com.mycompany.apijavaevents.repositorie;
+package com.mycompany.apijavaevents.repository;
 
 import jakarta.jms.Connection;
 import java.sql.DriverManager;

@@ -1,6 +1,6 @@
 package com.mycompany.controller;
 
-import com.mycompany.apijavaevents.repositorie.UserDAO;
+import com.mycompany.apijavaevents.repository.UserDAO;
 import com.mycompany.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -49,31 +49,20 @@ public class UserBC {
             throw new Exception("Erro: " + e.getMessage());
         }
     }
-    public boolean salvarUuario(User user){
-        if(userDAO.verificarCPF(user) || userDAO.verificarEmail(user)){
-            userDAO.salvarUsuario(user);
-        }
-        return true;
+    public boolean salvarUsuario(User user){
+        return userDAO.salvarUsuario(user);
     }
+    
     public boolean alterarUsuario(User user){
-        if(isAdmin(user)){
-            return userDAO.alterarUsuario(user);
-        }
-        return true;
+       return userDAO.alterarUsuario(user);
     }
     
     public boolean removerUsuario(String email, User user){
-        if(userDAO.isAdmin(user)){
-           return userDAO.removerUsuario(email);
-        }
-        return true;
+        return userDAO.removerUsuario(email, user);
     }
     
     public boolean promoverAdministrador(String email, User user){
-        if(userDAO.isAdmin(user)){
-           userDAO.promoverAdministrador(email);
-        }
-        return false;
+       return userDAO.promoverAdministrador(email, user);
     }
     
     public List<User> listarUsuarios(){
@@ -81,7 +70,6 @@ public class UserBC {
     }
     
     public boolean isAdmin(User user){
-      return UserDAO.isAdmin(user);
+      return userDAO.isAdmin(user);
     }
-    
 }
