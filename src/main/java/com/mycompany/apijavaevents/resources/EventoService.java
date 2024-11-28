@@ -1,12 +1,9 @@
-package br.unifan.agenda.rest.resources;
+package com.mycompany.apijavaevents.resources;
 
-import br.unifan.agenda.rest.model.Evento;
-import br.unifan.agenda.rest.model.Participante;
-import br.unifan.agenda.rest.model.Programacao;
-import br.unifan.agenda.rest.controller.EventoController;
-import br.unifan.agenda.rest.validator.EventoValidator;
-import br.unifan.agenda.rest.validator.ParticipanteValidator;
-import br.unifan.agenda.rest.validator.ProgramacaoValidator;
+
+import com.mycompany.controller.EventoController;
+import com.mycompany.model.Evento;
+import com.mycompany.model.Participante;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
