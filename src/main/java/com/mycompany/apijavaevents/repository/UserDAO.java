@@ -13,8 +13,9 @@ public class UserDAO {
     public boolean salvarUsuario(User user) {
         
         if(!verificarEmail(user) || !verificarCPF(user)){
-            return false;
+            return false; // Retorna falso se existir esse email e esse CPF
         }
+        
         String sql = "INSERT INTO usuario (nome, telefone, cpf, email, senha, administrador) VALUES (?,?,?,?,?,?)";
 
         Connection conn;
@@ -46,10 +47,10 @@ public class UserDAO {
     public boolean alterarUsuario(User user) {
         
         if(!isAdmin(user)){
-            return false;
+            return false; //Retorna falso se o usuário não for administrador
         }
         
-        String sql = "UPDATE usuario set nome = ?, telefone = ?, email = ?, senha = ? WHERE CPF = ?";
+        String sql = "UPDATE usuario SET nome = ?, telefone = ?, email = ?, senha = ? WHERE cpf = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -76,10 +77,10 @@ public class UserDAO {
 
     public boolean removerUsuario(String email, User user) {
         if(!isAdmin(user)){
-            return false;
+            return false; //Retorna falso se o usuário não for administrador
         }
         
-        String sql = "DELETE FROM usuario where email = ?";
+        String sql = "DELETE FROM usuario WHERE email = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -102,9 +103,9 @@ public class UserDAO {
 
     public boolean promoverAdministrador(String email, User user) {
         if(!isAdmin(user)){
-            return false;
+            return false; //Retorna falso se o usuário não for administrador
         }
-        String sql = "UPDATE usuario set administrador = true WHERE email = ?";
+        String sql = "UPDATE usuario SET administrador = true WHERE email = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -198,12 +199,12 @@ public class UserDAO {
             ResultSet result = statement.executeQuery();
             
             if(result.next()){
-                System.out.println("Já existe um usuário com esse email");
+                return false; // Retorna false se não encontrar o email
             }
         } catch (SQLException e){
-            System.out.println("Email não encontrado" + e.getMessage());
+            throw new RuntimeException("Erro ao verificar email", e);
         }
-        return true;
+        return true; //Retorna true se encontrar o email
     }
     
     public boolean verificarCPF(User user){
@@ -212,7 +213,7 @@ public class UserDAO {
         Connection conn;
 
         PreparedStatement statement;
-
+        
         try {
             conn = (Connection) DatabaseConnection.getConnection();
 
@@ -223,11 +224,11 @@ public class UserDAO {
             ResultSet result = statement.executeQuery();
             
             if(result.next()){
-                System.out.println("Já existe um usuário com esse CPF");
+                return false; // Retorna falso se não encontrar o CPF
             }
         } catch (SQLException e){
-            System.out.println("Não existe um usuário com esse CPF" + e.getMessage());
-        } 
-        return true;
+            throw new RuntimeException("Erro ao verificar CPF", e);
+        }
+        return true; // Retorna true caso encontre o CPF;
     }
 }
