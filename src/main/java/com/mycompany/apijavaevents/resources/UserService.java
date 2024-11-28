@@ -17,20 +17,54 @@ import java.util.List;
 import com.mycompany.apijavaevents.security.Autorizar;
 import com.mycompany.controller.EventoController;
 import com.mycompany.model.Evento;
+import com.mycompany.model.Login;
 import com.mycompany.model.Requester;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.InvalidKeyException;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import javax.crypto.SecretKey;
 
 @Path("usuario")
 public class UserService {
 
     private UserBC bc = new UserBC();
-
+    
+    private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE").getBytes(StandardCharsets.UTF_8));
+    
+    @POST
+    @Path("login")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response logar(Login login) {
+        try {
+            if (login.getEmail().equals("admin@unifan.br") && login.getSenha().equals("passwd")) {
+                String jwtToken = Jwts.builder().setSubject(login.getEmail())
+                        .setIssuedAt(new Date()).setExpiration(Date.from(LocalDateTime.now().plusMinutes(15L)
+                        .atZone(ZoneId.systemDefault()).toInstant()))
+                        .signWith(CHAVE, SignatureAlgorithm.HS512)
+                        .compact();
+                return Response.status(Response.Status.OK).entity(jwtToken).build();
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED).entity("Usuário e/ou senha inválidos").build();
+            }
+        } catch (InvalidKeyException ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+    }
+    
+   
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     // @Autorizar
     public List<User> listarUsuarios() {
         return bc.listarUsuarios();
     }
-
+    
     @POST
     @Path("salvar")
     @Consumes(MediaType.APPLICATION_JSON)

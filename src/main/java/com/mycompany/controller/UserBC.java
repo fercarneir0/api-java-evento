@@ -50,19 +50,31 @@ public class UserBC {
         }
     }
     public boolean salvarUsuario(User user){
-        return userDAO.salvarUsuario(user);
+        if(!userDAO.verificarEmail(user) || !userDAO.verificarCPF(user)){
+            return userDAO.salvarUsuario(user);
+        }
+        return false; // Retorna falso se o usuário não foi administrador
     }
     
     public boolean alterarUsuario(User user){
-       return userDAO.alterarUsuario(user);
+      if(isAdmin(user)){
+            return userDAO.alterarUsuario(user);
+        }
+        return false; // Retorna falso se o usuário não foi administrador
     }
     
     public boolean removerUsuario(String email, User user){
-        return userDAO.removerUsuario(email, user);
+        if(isAdmin(user)){
+            return userDAO.removerUsuario(email, user);
+        }
+        return false; // Retorna falso se o usuário não foi administrador
     }
     
     public boolean promoverAdministrador(String email, User user){
-       return userDAO.promoverAdministrador(email, user);
+       if(isAdmin(user)){
+            return userDAO.promoverAdministrador(email, user);
+        }
+        return false; // Retorna falso se o usuário não foi administrador
     }
     
     public List<User> listarUsuarios(){

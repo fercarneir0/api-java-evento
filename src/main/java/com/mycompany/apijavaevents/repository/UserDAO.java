@@ -16,7 +16,7 @@ public class UserDAO {
             return false; // Retorna falso se existir esse email e esse CPF
         }
         
-        String sql = "INSERT INTO usuario (nome, telefone, cpf, email, senha, administrador) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO usuario (usuario_id, nome, telefone, cpf, email, senha, administrador) VALUES (nextval('usuario_usuario_id_seq'),?,?,?,?,?,?)";
 
         Connection conn;
         PreparedStatement statement;
@@ -25,7 +25,6 @@ public class UserDAO {
             conn = (Connection) DatabaseConnection.getConnection();
 
             statement = conn.prepareStatement(sql);
-            
 
             statement.setString(1, user.getNome());
             statement.setString(2, user.getTelefone());
@@ -39,7 +38,7 @@ public class UserDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
         }
     }
