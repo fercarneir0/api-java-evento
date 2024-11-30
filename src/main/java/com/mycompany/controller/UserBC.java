@@ -50,10 +50,10 @@ public class UserBC {
         }
     }
     public boolean salvarUsuario(User user){
-        if(!userDAO.verificarEmail(user) || !userDAO.verificarCPF(user)){
+//        if(!userDAO.verificarEmail(user) || !userDAO.verificarCPF(user)){
             return userDAO.salvarUsuario(user);
-        }
-        return false; // Retorna falso se o usuário não foi administrador
+//        }
+//        return false; // Retorna falso se o email ou cpf já existir
     }
     
     public boolean alterarUsuario(User user){
