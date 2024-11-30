@@ -11,11 +11,7 @@ import java.util.List;
 public class UserDAO {
 
     public boolean salvarUsuario(User user) {
-        
-        if(!verificarEmail(user) || !verificarCPF(user)){
-            return false; // Retorna falso se existir esse email e esse CPF
-        }
-        
+                
         String sql = "INSERT INTO usuario (usuario_id, nome, telefone, cpf, email, senha, administrador) VALUES (nextval('usuario_usuario_id_seq'),?,?,?,?,?,?)";
 
         Connection conn;
@@ -45,11 +41,7 @@ public class UserDAO {
 
     public boolean alterarUsuario(User user) {
         
-        if(!isAdmin(user)){
-            return false; //Retorna falso se o usuário não for administrador
-        }
-        
-        String sql = "UPDATE usuario SET nome = ?, telefone = ?, email = ?, senha = ? WHERE cpf = ?";
+        String sql = "UPDATE usuario SET nome = ?, telefone = ?, email = ?, senha = ? WHERE id = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -63,7 +55,7 @@ public class UserDAO {
             statement.setString(2, user.getTelefone());
             statement.setString(3, user.getEmail());
             statement.setString(4, user.getSenha());
-            statement.setString(5, user.getCpf());
+            statement.setInt(5, user.getId());
 
             statement.executeUpdate();
 
@@ -120,13 +112,13 @@ public class UserDAO {
 
             return rowAffected > 0;
         } catch (SQLException e){
-            e.printStackTrace();
+            e.getMessage();
             return false;
         }   
     }
 
     public List<User> listarUsuarios() {
-        String sql = "SELECT cpf, nome, email, administrador from usuario";
+        String sql = "SELECT usuario_id, cpf, nome, email, administrador from usuario";
         List<User> users = new ArrayList<>();
 
         Connection conn;
@@ -142,6 +134,7 @@ public class UserDAO {
 
             while (result.next()) {
                 User user = new User();
+                user.setId(result.getInt("usuario_id"));
                 user.setCpf(result.getString("cpf"));
                 user.setNome(result.getString("nome"));
                 user.setEmail(result.getString("email"));
@@ -150,6 +143,7 @@ public class UserDAO {
                 users.add(user);
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("Erro ao listar os usuários");
         }
 
