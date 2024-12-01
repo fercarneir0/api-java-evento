@@ -1,5 +1,6 @@
 package com.mycompany.apijavaevents.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -18,18 +19,37 @@ import javax.crypto.SecretKey;
 
 @Provider
 @Autorizar
-public class AutorizarInterceptador implements ContainerRequestFilter{
-    private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE")
-                    .getBytes(StandardCharsets.UTF_8));
-    
+public class AutorizarInterceptador implements ContainerRequestFilter {
+    private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE").getBytes());
+
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"mensagem\": \"Token não fornecido.\"}")
+                    .build());
+            return;
+        }
+
+        token = token.substring("Bearer ".length()); // Remove o prefixo "Bearer "
+
         try {
-            Jws claim = Jwts.parserBuilder().setSigningKey(CHAVE).build().parseClaimsJws(token);
-            System.out.println(claim.getBody().toString());
-        } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException | SignatureException | IllegalArgumentException  | NullPointerException e) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            // Valida o token e extrai as claims
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(CHAVE)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // Armazena o ID no contexto da requisição
+            requestContext.setProperty("userId", claims.get("id", Integer.class));
+
+        } catch (Exception e) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"mensagem\": \"Token inválido ou expirado.\"}")
+                    .build());
         }
     }
 }

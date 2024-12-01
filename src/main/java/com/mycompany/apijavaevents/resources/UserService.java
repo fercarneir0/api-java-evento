@@ -15,14 +15,14 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import com.mycompany.apijavaevents.security.Autorizar;
-import com.mycompany.controller.EventoController;
-import com.mycompany.model.Evento;
+import com.mycompany.controller.LoginController;
 import com.mycompany.model.Login;
-import com.mycompany.model.Requester;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,17 +33,24 @@ import javax.crypto.SecretKey;
 public class UserService {
 
     private UserBC bc = new UserBC();
-    
+
     private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE").getBytes(StandardCharsets.UTF_8));
-    
+
     @POST
     @Path("login")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response logar(Login login) {
         try {
-            if (login.getEmail().equals("admin@unifan.br") && login.getSenha().equals("passwd")) {
+            LoginController controller = new LoginController();
+
+            User user = controller.autenticarUsuario(login);
+
+            if (user != null) {
                 String jwtToken = Jwts.builder().setSubject(login.getEmail())
+                        .setSubject(user.getEmail())
+                        .claim("id", user.getId())
+                        .claim("admin", user.isAdmin())
                         .setIssuedAt(new Date()).setExpiration(Date.from(LocalDateTime.now().plusMinutes(15L)
                         .atZone(ZoneId.systemDefault()).toInstant()))
                         .signWith(CHAVE, SignatureAlgorithm.HS512)
@@ -53,18 +60,17 @@ public class UserService {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Usuário e/ou senha inválidos").build();
             }
         } catch (InvalidKeyException ex) {
+            System.out.println(ex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
-    
-   
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    // @Autorizar
     public List<User> listarUsuarios() {
         return bc.listarUsuarios();
     }
-    
+
     @POST
     @Path("salvar")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -74,8 +80,8 @@ public class UserService {
         try {
             if (sucesso) {
                 return Response.status(Response.Status.OK)
-                     .entity("{\"mensagem\": \"Usuário salvo com sucesso\"}")
-                     .build();
+                        .entity("{\"mensagem\": \"Usuário salvo com sucesso\"}")
+                        .build();
             }
 
             return Response.status(Response.Status.FORBIDDEN)
@@ -89,23 +95,37 @@ public class UserService {
     }
 
     @PUT
-    @Path("alterar/{cpf}")
+    @Path("alterar/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    public Response alterarUsuario(String cpf, User user) {
-        boolean sucesso = bc.alterarUsuario(user);
-
+    public Response alterarUsuario(@PathParam("id") int id, User user,@Context ContainerRequestContext context) {
         try {
+            Integer obterIdDoToken = (Integer) context.getProperty("userId");
+
+            if (obterIdDoToken == null) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("{\"mensagem\": \"Usuário não encontrado\"}")
+                        .build();
+            }
+
+            if (!obterIdDoToken.equals(id)) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("{\"mensagem\": \"Você não tem permissão para alterar este usuário.\"}")
+                        .build();
+            }
+            boolean sucesso = bc.alterarUsuario(user);
+
             if (sucesso) {
                 return Response.status(Response.Status.OK)
                         .entity("{\"mensagem\": \"Usuário alterado com sucesso\"}")
                         .build();
+            } else{
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"mensagem\": \"Dados do usuário são inválidos.\"}")
+                        .build();
             }
 
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity("{\"mensagem\": \"Você não tem permissão para alterar o usuário\"}")
-                    .build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
@@ -114,14 +134,12 @@ public class UserService {
     }
 
     @DELETE
-    @Path("remover/{email}")
+    @Path("remover/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    public Response removerUsuario(Requester request) {
-        String email = request.getEmail();
-        User user = request.getUser();
-        boolean sucesso = bc.removerUsuario(email, user);
+    public Response removerUsuario(@PathParam("id") int id, User user) {
+        boolean sucesso = bc.removerUsuario(id, user);
 
         try {
             if (sucesso) {
@@ -141,15 +159,13 @@ public class UserService {
     }
 
     @PUT
-    @Path("promover/{email}")
+    @Path("promover/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    public Response promoverAdministrador(Requester request) {
+    public Response promoverAdministrador(@PathParam("id") int id, User user) {
 
-        String email = request.getEmail();
-        User user = request.getUser();
-        boolean sucesso = bc.promoverAdministrador(email, user);
+        boolean sucesso = bc.promoverAdministrador(id, user);
 
         try {
             if (sucesso) {

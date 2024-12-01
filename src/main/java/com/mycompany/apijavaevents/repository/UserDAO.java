@@ -7,11 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDAO {
 
     public boolean salvarUsuario(User user) {
-                
+
         String sql = "INSERT INTO usuario (usuario_id, nome, telefone, cpf, email, senha, administrador) VALUES (nextval('usuario_usuario_id_seq'),?,?,?,?,?,?)";
 
         Connection conn;
@@ -40,8 +41,8 @@ public class UserDAO {
     }
 
     public boolean alterarUsuario(User user) {
-        
-        String sql = "UPDATE usuario SET nome = ?, telefone = ?, email = ?, senha = ? WHERE id = ?";
+
+        String sql = "UPDATE usuario SET nome = ?, telefone = ?, email = ?, senha = ? WHERE usuario_id = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -61,17 +62,13 @@ public class UserDAO {
 
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
         }
     }
 
-    public boolean removerUsuario(String email, User user) {
-        if(!isAdmin(user)){
-            return false; //Retorna falso se o usuário não for administrador
-        }
-        
-        String sql = "DELETE FROM usuario WHERE email = ?";
+    public Optional<User> buscarUsuarioPorEmail(String email) {
+        String sql = "SELECT * FROM usuario WHERE email = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -82,21 +79,50 @@ public class UserDAO {
             statement = conn.prepareStatement(sql);
 
             statement.setString(1, email);
+
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+                // Mapeia o resultado para o objeto User
+                User user = new User();
+                user.setId(result.getInt("usuario_id"));
+                user.setNome(result.getString("nome"));
+                user.setEmail(result.getString("email"));
+                user.setTelefone(result.getString("telefone"));
+                user.setSenha(result.getString("senha"));
+
+                return Optional.of(user); // Retorna o usuário encontrado
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return Optional.empty(); // Retorna vazio se não encontrar o usuário
+    }
+
+public boolean removerUsuario(int id, User user) {
+        
+        String sql = "DELETE FROM usuario WHERE usuario_id = ?";
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = (Connection) DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setInt(1, id);
 
             int rowAffected = statement.executeUpdate();
 
             return rowAffected > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
-    public boolean promoverAdministrador(String email, User user) {
-        if(!isAdmin(user)){
-            return false; //Retorna falso se o usuário não for administrador
-        }
-        String sql = "UPDATE usuario SET administrador = true WHERE email = ?";
+    public boolean promoverAdministrador(int id, User user) {
+     
+        String sql = "UPDATE usuario SET administrador = true WHERE usuario_id = ?";
 
         Connection conn;
         PreparedStatement statement;
@@ -106,7 +132,7 @@ public class UserDAO {
 
             statement = conn.prepareStatement(sql);
 
-            statement.setString(1, email);
+            statement.setInt(1, id);
 
             int rowAffected = statement.executeUpdate();
 
