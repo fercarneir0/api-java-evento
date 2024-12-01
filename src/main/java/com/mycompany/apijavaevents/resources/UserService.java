@@ -10,7 +10,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -36,6 +35,9 @@ public class UserService {
 
     private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE").getBytes(StandardCharsets.UTF_8));
 
+    @Context
+    private ContainerRequestContext context;
+
     @POST
     @Path("login")
     @Produces(MediaType.TEXT_PLAIN)
@@ -47,7 +49,7 @@ public class UserService {
             User user = controller.autenticarUsuario(login);
 
             if (user != null) {
-                String jwtToken = Jwts.builder().setSubject(login.getEmail())
+                String jwtToken = Jwts.builder()
                         .setSubject(user.getEmail())
                         .claim("id", user.getId())
                         .claim("admin", user.isAdmin())
@@ -67,8 +69,17 @@ public class UserService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<User> listarUsuarios() {
-        return bc.listarUsuarios();
+    @Autorizar
+    public Response listarUsuarios() {
+        Integer obterIdDoToken = (Integer) context.getProperty("userId");
+        Boolean isAdmin = (Boolean) context.getProperty("admin");
+
+        if (obterIdDoToken == null || (isAdmin != null && !isAdmin)) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("{\"mensagem\": \"Você não tem permissão para listar os usuários.\"}")
+                    .build();
+        }
+        return Response.status(Response.Status.OK).entity(bc.listarUsuarios()).build();
     }
 
     @POST
@@ -84,7 +95,7 @@ public class UserService {
                         .build();
             }
 
-            return Response.status(Response.Status.FORBIDDEN)
+            return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"mensagem\": \"Não foi possível salvar o usuário\"}")
                     .build();
         } catch (Exception e) {
@@ -99,12 +110,12 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    public Response alterarUsuario(@PathParam("id") int id, User user,@Context ContainerRequestContext context) {
+    public Response alterarUsuario(@PathParam("id") int id, User user) {
         try {
             Integer obterIdDoToken = (Integer) context.getProperty("userId");
 
             if (obterIdDoToken == null) {
-                return Response.status(Response.Status.UNAUTHORIZED)
+                return Response.status(Response.Status.NO_CONTENT)
                         .entity("{\"mensagem\": \"Usuário não encontrado\"}")
                         .build();
             }
@@ -114,13 +125,13 @@ public class UserService {
                         .entity("{\"mensagem\": \"Você não tem permissão para alterar este usuário.\"}")
                         .build();
             }
-            boolean sucesso = bc.alterarUsuario(user);
+            boolean sucesso = bc.alterarUsuario(id, user);
 
             if (sucesso) {
                 return Response.status(Response.Status.OK)
                         .entity("{\"mensagem\": \"Usuário alterado com sucesso\"}")
                         .build();
-            } else{
+            } else {
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity("{\"mensagem\": \"Dados do usuário são inválidos.\"}")
                         .build();
@@ -138,19 +149,33 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
-    public Response removerUsuario(@PathParam("id") int id, User user) {
-        boolean sucesso = bc.removerUsuario(id, user);
+    public Response removerUsuario(@PathParam("id") int id) {
 
         try {
+            Integer obterIdDoToken = (Integer) context.getProperty("userId");
+
+            if (obterIdDoToken == null) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"mensagem\": \"Usuário não encontrado\"}")
+                        .build();
+            }
+
+            if (!obterIdDoToken.equals(id)) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("{\"mensagem\": \"Você não tem permissão para remover este usuário\"}")
+                        .build();
+            }
+            boolean sucesso = bc.removerUsuario(id);
+
             if (sucesso) {
                 return Response.status(Response.Status.OK)
                         .entity("{\"mensagem\": \"Usuário removido com sucesso\"}")
                         .build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"mensagem\": \"Dados do usuário são inválidos.\"}")
+                        .build();
             }
-
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity("{\"mensagem\": \"Você não tem permissão para remover o usuário\"}")
-                    .build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
@@ -164,19 +189,31 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
     public Response promoverAdministrador(@PathParam("id") int id, User user) {
-
-        boolean sucesso = bc.promoverAdministrador(id, user);
-
         try {
+            Integer obterIdDoToken = (Integer) context.getProperty("userId");
+
+            if (obterIdDoToken == null) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"mensagem\": \"Usuário não encontrado\"}")
+                        .build();
+            }
+
+            if (!obterIdDoToken.equals(id)) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("{\"mensagem\": \"Você não tem permissão para alterar este usuário.\"}")
+                        .build();
+            }
+            boolean sucesso = bc.promoverAdministrador(id, user);
+
             if (sucesso) {
                 return Response.status(Response.Status.OK)
                         .entity("{\"mensagem\": \"Usuário promovido a administrador\"}")
                         .build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"mensagem\": \"Dados do usuário são inválidos.\"}")
+                        .build();
             }
-
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity("{\"mensagem\": \"Você não tem permissão para promover o usuário\"}")
-                    .build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"mensagem\": \"Erro: " + e.getMessage() + "\"}")
