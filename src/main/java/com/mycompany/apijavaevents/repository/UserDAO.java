@@ -98,7 +98,7 @@ public class UserDAO {
         return Optional.empty(); // Retorna vazio se não encontrar o usuário
     }
 
-public boolean removerUsuario(int id, User user) {
+public boolean removerUsuario(int id) {
         
         String sql = "DELETE FROM usuario WHERE usuario_id = ?";
 
@@ -120,7 +120,7 @@ public boolean removerUsuario(int id, User user) {
         }
     }
 
-    public boolean promoverAdministrador(int id, User user) {
+    public boolean promoverAdministrador(int id) {
      
         String sql = "UPDATE usuario SET administrador = true WHERE usuario_id = ?";
 
@@ -144,7 +144,7 @@ public boolean removerUsuario(int id, User user) {
     }
 
     public List<User> listarUsuarios() {
-        String sql = "SELECT usuario_id, cpf, nome, email, administrador from usuario";
+        String sql = "SELECT usuario_id, cpf, nome, email, administrador from usuario ORDER BY usuario_id";
         List<User> users = new ArrayList<>();
 
         Connection conn;
@@ -176,8 +176,8 @@ public boolean removerUsuario(int id, User user) {
         return users;
     }
 
-    public boolean isAdmin(User user) {
-        String sql = "SELECT administrador from usuario WHERE email = ?";
+    public boolean isAdmin(int id) {
+        String sql = "SELECT administrador from usuario WHERE usuario_id = ?";
 
         Connection conn;
 
@@ -188,7 +188,7 @@ public boolean removerUsuario(int id, User user) {
 
             statement = conn.prepareStatement(sql);
 
-            statement.setString(1, user.getEmail());
+            statement.setInt(1, id);
 
             ResultSet result = statement.executeQuery();
             
@@ -218,12 +218,12 @@ public boolean removerUsuario(int id, User user) {
             ResultSet result = statement.executeQuery();
             
             if(result.next()){
-                return false; // Retorna false se não encontrar o email
+                return true; // Retorna true se encontrar o email
             }
         } catch (SQLException e){
             throw new RuntimeException("Erro ao verificar email", e);
         }
-        return true; //Retorna true se encontrar o email
+        return false; //Retorna true se não encontrar o email
     }
     
     public boolean verificarCPF(User user){
@@ -243,11 +243,11 @@ public boolean removerUsuario(int id, User user) {
             ResultSet result = statement.executeQuery();
             
             if(result.next()){
-                return false; // Retorna falso se não encontrar o CPF
+                return true; // Retorna true se encontrar o CPF
             }
         } catch (SQLException e){
             throw new RuntimeException("Erro ao verificar CPF", e);
         }
-        return true; // Retorna true caso encontre o CPF;
+        return false; // Retorna falso se não encontrar o CPF;
     }
 }

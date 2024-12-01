@@ -67,23 +67,23 @@ public class UserBC {
        return false; // Retorna falso se o email ou cpf já existir
     }
     
-    public boolean alterarUsuario(User user){
-      if(isAdmin(user) && user == user){
+    public boolean alterarUsuario(int id, User user){
+      if(isAdmin(id) && user == user){
             return userDAO.alterarUsuario(user);
         }
         return false; // Retorna falso se o usuário não foi administrador
     }
     
-    public boolean removerUsuario(int id, User user){
-        if(isAdmin(user)){
-            return userDAO.removerUsuario(id, user);
+    public boolean removerUsuario(int id){
+        if(isAdmin(id)){
+            return userDAO.removerUsuario(id);
         }
         return false; // Retorna falso se o usuário não foi administrador
     }
     
     public boolean promoverAdministrador(int id, User user){
-       if(isAdmin(user)){
-            return userDAO.promoverAdministrador(id, user);
+       if(isAdmin(id)){
+            return userDAO.promoverAdministrador(id);
         }
         return false; // Retorna falso se o usuário não foi administrador
     }
@@ -92,7 +92,7 @@ public class UserBC {
         return userDAO.listarUsuarios();
     }
     
-    public boolean isAdmin(User user){
-      return userDAO.isAdmin(user);
+    public boolean isAdmin(Integer id){
+      return userDAO.isAdmin(id);
     }
 }

@@ -20,20 +20,21 @@ import javax.crypto.SecretKey;
 @Provider
 @Autorizar
 public class AutorizarInterceptador implements ContainerRequestFilter {
+
     private final SecretKey CHAVE = Keys.hmacShaKeyFor(System.getenv("CHAVE").getBytes());
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
-        if (token == null || !token.startsWith("Bearer ")) {
+        if (token == null || !token.trim().toLowerCase().startsWith("bearer ")) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("{\"mensagem\": \"Token não fornecido.\"}")
+                    .entity("{\"mensagem\": \"Token não fornecido ou formato inválido.\"}")
                     .build());
             return;
         }
 
-        token = token.substring("Bearer ".length()); // Remove o prefixo "Bearer "
+        token = token.substring("Bearer ".length()).trim(); // Remove o prefixo "Bearer "
 
         try {
             // Valida o token e extrai as claims
@@ -46,9 +47,17 @@ public class AutorizarInterceptador implements ContainerRequestFilter {
             // Armazena o ID no contexto da requisição
             requestContext.setProperty("userId", claims.get("id", Integer.class));
 
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"mensagem\": \"Token expirado.\"}")
+                    .build());
+        } catch (io.jsonwebtoken.SignatureException e) {
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"mensagem\": \"Assinatura do token inválida.\"}")
+                    .build());
         } catch (Exception e) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("{\"mensagem\": \"Token inválido ou expirado.\"}")
+                    .entity("{\"mensagem\": \"Token inválido ou erro desconhecido.\"}")
                     .build());
         }
     }
