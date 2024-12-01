@@ -2,97 +2,170 @@ package com.mycompany.apijavaevents.repository;
 
 import com.mycompany.model.Palestra;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PalestraDAO {
-    private final Connection connection;
 
-    public PalestraDAO(Connection connection) {
-        this.connection = connection;
-    }
+    public boolean salvarPalestra(Palestra palestra) {
+        String sql = "INSERT INTO palestra (id, nome, descricao, data, local, palestrante, titulo, numeroVagas, dataLimiteInscricao) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    public void salvar(Palestra palestra) throws SQLException {
-        String sql = "INSERT INTO palestra (id, titulo, palestrante, data, local, descricao, numeroVagas, dataLimiteInscricao) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, palestra.getId());
-            stmt.setString(2, palestra.getTitulo());
-            stmt.setString(3, palestra.getPalestrante());
-            stmt.setTimestamp(4, Timestamp.valueOf(palestra.getData()));
-            stmt.setString(5, palestra.getLocal());
-            stmt.setString(6, palestra.getDescricao());
-            stmt.setInt(7, palestra.getNumeroVagas());
-            stmt.setTimestamp(8, Timestamp.valueOf(palestra.getDataLimiteInscricao()));
-            stmt.executeUpdate();
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, palestra.getId());
+            statement.setString(2, palestra.getNome());
+            statement.setString(3, palestra.getDescricao());
+            statement.setDate(4, Date.valueOf(palestra.getData())); // Converte LocalDate para Date
+            statement.setString(5, palestra.getLocal());
+            statement.setString(6, palestra.getPalestrante());
+            statement.setString(7, palestra.getTitulo());
+            statement.setInt(8, palestra.getNumeroVagas());
+            statement.setDate(9, Date.valueOf(palestra.getDataLimiteInscricao())); // Converte LocalDate para Date
+
+            statement.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao salvar palestra: " + e.getMessage());
+            return false;
         }
     }
 
-    public List<Palestra> listarTodas() throws SQLException {
-        String sql = "SELECT * FROM palestra";
-        List<Palestra> palestras = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Palestra palestra = new Palestra();
-                palestra.setId(rs.getString("id"));
-                palestra.setTitulo(rs.getString("titulo"));
-                palestra.setPalestrante(rs.getString("palestrante"));
-                palestra.setData(rs.getTimestamp("data").toLocalDateTime().toString());
-                palestra.setLocal(rs.getString("local"));
-                palestra.setDescricao(rs.getString("descricao"));
-                palestra.setNumeroVagas(rs.getInt("numeroVagas"));
-                palestra.setDataLimiteInscricao(rs.getTimestamp("dataLimiteInscricao").toLocalDateTime().toString());
-                palestras.add(palestra);
-            }
+    public boolean atualizarPalestra(Palestra palestra) {
+        String sql = "UPDATE palestra SET nome = ?, descricao = ?, data = ?, local = ?, palestrante = ?, titulo = ?, " +
+                     "numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, palestra.getNome());
+            statement.setString(2, palestra.getDescricao());
+            statement.setDate(3, Date.valueOf(palestra.getData())); // Converte LocalDate para Date
+            statement.setString(4, palestra.getLocal());
+            statement.setString(5, palestra.getPalestrante());
+            statement.setString(6, palestra.getTitulo());
+            statement.setInt(7, palestra.getNumeroVagas());
+            statement.setDate(8, Date.valueOf(palestra.getDataLimiteInscricao())); // Converte LocalDate para Date
+            statement.setString(9, palestra.getId());
+
+            statement.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar palestra: " + e.getMessage());
+            return false;
         }
-        return palestras;
     }
 
-    public Palestra buscarPorId(String id) throws SQLException {
+    public boolean deletarPalestra(String id) {
+        String sql = "DELETE FROM palestra WHERE id = ?";
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, id);
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao deletar palestra: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Palestra buscarPalestraPorId(String id) {
         String sql = "SELECT * FROM palestra WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Palestra palestra = new Palestra();
-                    palestra.setId(rs.getString("id"));
-                    palestra.setTitulo(rs.getString("titulo"));
-                    palestra.setPalestrante(rs.getString("palestrante"));
-                    palestra.setData(rs.getTimestamp("data").toLocalDateTime().toString());
-                    palestra.setLocal(rs.getString("local"));
-                    palestra.setDescricao(rs.getString("descricao"));
-                    palestra.setNumeroVagas(rs.getInt("numeroVagas"));
-                    palestra.setDataLimiteInscricao(rs.getTimestamp("dataLimiteInscricao").toLocalDateTime().toString());
-                    return palestra;
-                }
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, id);
+
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+                Palestra palestra = new Palestra();
+                palestra.setId(result.getString("id"));
+                palestra.setNome(result.getString("nome"));
+                palestra.setDescricao(result.getString("descricao"));
+                palestra.setData(result.getDate("data").toLocalDate()); // Converte Date para LocalDate
+                palestra.setLocal(result.getString("local"));
+                palestra.setPalestrante(result.getString("palestrante"));
+                palestra.setTitulo(result.getString("titulo"));
+                palestra.setNumeroVagas(result.getInt("numeroVagas"));
+                palestra.setDataLimiteInscricao(result.getDate("dataLimiteInscricao").toLocalDate()); // Converte Date para LocalDate
+                return palestra;
             }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar palestra por ID: " + e.getMessage());
         }
+
         return null;
     }
 
-    public void atualizar(Palestra palestra) throws SQLException {
-        String sql = "UPDATE palestra SET titulo = ?, palestrante = ?, data = ?, local = ?, descricao = ?, " +
-                     "numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, palestra.getTitulo());
-            stmt.setString(2, palestra.getPalestrante());
-            stmt.setTimestamp(3, Timestamp.valueOf(palestra.getData()));
-            stmt.setString(4, palestra.getLocal());
-            stmt.setString(5, palestra.getDescricao());
-            stmt.setInt(6, palestra.getNumeroVagas());
-            stmt.setTimestamp(7, Timestamp.valueOf(palestra.getDataLimiteInscricao()));
-            stmt.setString(8, palestra.getId());
-            stmt.executeUpdate();
-        }
-    }
+    public List<Palestra> listarPalestras() {
+        String sql = "SELECT * FROM palestra";
+        List<Palestra> palestras = new ArrayList<>();
 
-    public void deletarPorId(String id) throws SQLException {
-        String sql = "DELETE FROM palestra WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            stmt.executeUpdate();
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
+                Palestra palestra = new Palestra();
+                palestra.setId(result.getString("id"));
+                palestra.setNome(result.getString("nome"));
+                palestra.setDescricao(result.getString("descricao"));
+                palestra.setData(result.getDate("data").toLocalDate()); // Converte Date para LocalDate
+                palestra.setLocal(result.getString("local"));
+                palestra.setPalestrante(result.getString("palestrante"));
+                palestra.setTitulo(result.getString("titulo"));
+                palestra.setNumeroVagas(result.getInt("numeroVagas"));
+                palestra.setDataLimiteInscricao(result.getDate("dataLimiteInscricao").toLocalDate()); // Converte Date para LocalDate
+                palestras.add(palestra);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar palestras: " + e.getMessage());
         }
+
+        return palestras;
     }
 }

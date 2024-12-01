@@ -1,5 +1,6 @@
 package com.mycompany.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,16 +8,21 @@ public class Palestra {
     private String id;
     private String nome;
     private String descricao;
-    private String data;
+    private LocalDate data; // Formato ISO 8601 (yyyy-MM-dd)
     private String local;
     private String palestrante;
     private String titulo;
     private int numeroVagas;
-    private String dataLimiteInscricao;
+    private LocalDate dataLimiteInscricao; // Formato ISO 8601 (yyyy-MM-dd)
     private List<Participante> inscritos;
 
-    
-    public Palestra(String id, String nome, String descricao, String data, String local, String palestrante) {
+    // Construtor padrão (obrigatório para deserialização)
+    public Palestra() {
+        this.inscritos = new ArrayList<>();
+    }
+
+    // Construtor com argumentos
+    public Palestra(String id, String nome, String descricao, LocalDate data, String local, String palestrante) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -26,11 +32,7 @@ public class Palestra {
         this.inscritos = new ArrayList<>();
     }
 
-    public Palestra() {
-        this.inscritos = new ArrayList<>();
-    }
-
-    
+    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -55,11 +57,11 @@ public class Palestra {
         this.descricao = descricao;
     }
 
-    public String getData() {
+    public LocalDate getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(LocalDate data) {
         this.data = data;
     }
 
@@ -98,13 +100,13 @@ public class Palestra {
         this.numeroVagas = numeroVagas;
     }
 
-    public String getDataLimiteInscricao() {
+    public LocalDate getDataLimiteInscricao() {
         return dataLimiteInscricao;
     }
 
-    public void setDataLimiteInscricao(String dataLimiteInscricao) {
-        if (dataLimiteInscricao == null || dataLimiteInscricao.isEmpty()) {
-            throw new IllegalArgumentException("Data limite para inscrição não pode ser vazia.");
+    public void setDataLimiteInscricao(LocalDate dataLimiteInscricao) {
+        if (dataLimiteInscricao != null && data != null && dataLimiteInscricao.isAfter(data)) {
+            throw new IllegalArgumentException("Data limite para inscrição não pode ser após a data da palestra.");
         }
         this.dataLimiteInscricao = dataLimiteInscricao;
     }
@@ -117,7 +119,7 @@ public class Palestra {
         this.inscritos = inscritos;
     }
 
-    
+    // Métodos para adicionar e remover inscritos
     public void adicionarInscrito(Participante participante) {
         if (this.inscritos.size() < this.numeroVagas) {
             this.inscritos.add(participante);
@@ -126,7 +128,6 @@ public class Palestra {
         }
     }
 
-   
     public boolean removerInscrito(String cpf) {
         return inscritos.removeIf(p -> p.getCpf().equals(cpf));
     }
