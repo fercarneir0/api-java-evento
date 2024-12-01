@@ -3,104 +3,174 @@ package com.mycompany.apijavaevents.repository;
 import com.mycompany.model.Minicurso;
 
 import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MinicursoDAO {
-    private final Connection connection;
 
-    public MinicursoDAO(Connection connection) {
-        this.connection = connection;
-    }
-
-    public void salvar(Minicurso minicurso) throws SQLException {
+    public boolean salvarMinicurso(Minicurso minicurso) {
         String sql = "INSERT INTO minicurso (id, nome, data, local, descricao, nomeInstrutor, cpfInstrutor, emailInstrutor, numeroVagas, dataLimiteInscricao) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, minicurso.getId());
-            stmt.setString(2, minicurso.getNome());
-            stmt.setTimestamp(3, Timestamp.valueOf(minicurso.getData()));
-            stmt.setString(4, minicurso.getLocal());
-            stmt.setString(5, minicurso.getDescricao());
-            stmt.setString(6, minicurso.getNomeInstrutor());
-            stmt.setString(7, minicurso.getCpfInstrutor());
-            stmt.setString(8, minicurso.getEmailInstrutor());
-            stmt.setInt(9, minicurso.getNumeroVagas());
-            stmt.setTimestamp(10, Timestamp.valueOf(minicurso.getDataLimiteInscricao()));
-            stmt.executeUpdate();
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, minicurso.getId());
+            statement.setString(2, minicurso.getNome());
+            statement.setDate(3, Date.valueOf(minicurso.getData())); // Converte LocalDate para Date
+            statement.setString(4, minicurso.getLocal());
+            statement.setString(5, minicurso.getDescricao());
+            statement.setString(6, minicurso.getNomeInstrutor());
+            statement.setString(7, minicurso.getCpfInstrutor());
+            statement.setString(8, minicurso.getEmailInstrutor());
+            statement.setInt(9, minicurso.getNumeroVagas());
+            statement.setDate(10, Date.valueOf(minicurso.getDataLimiteInscricao())); // Converte LocalDate para Date
+
+            statement.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao salvar minicurso: " + e.getMessage());
+            return false;
         }
     }
 
-    public List<Minicurso> listarTodos() throws SQLException {
-        String sql = "SELECT * FROM minicurso";
-        List<Minicurso> minicursos = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Minicurso minicurso = new Minicurso();
-                minicurso.setId(rs.getString("id"));
-                minicurso.setNome(rs.getString("nome"));
-                minicurso.setData(rs.getTimestamp("data").toLocalDateTime().toString());
-                minicurso.setLocal(rs.getString("local"));
-                minicurso.setDescricao(rs.getString("descricao"));
-                minicurso.setNomeInstrutor(rs.getString("nomeInstrutor"));
-                minicurso.setCpfInstrutor(rs.getString("cpfInstrutor"));
-                minicurso.setEmailInstrutor(rs.getString("emailInstrutor"));
-                minicurso.setNumeroVagas(rs.getInt("numeroVagas"));
-                minicurso.setDataLimiteInscricao(rs.getTimestamp("dataLimiteInscricao").toLocalDateTime().toString());
-                minicursos.add(minicurso);
-            }
+    public boolean atualizarMinicurso(Minicurso minicurso) {
+        String sql = "UPDATE minicurso SET nome = ?, data = ?, local = ?, descricao = ?, nomeInstrutor = ?, cpfInstrutor = ?, " +
+                     "emailInstrutor = ?, numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, minicurso.getNome());
+            statement.setDate(2, Date.valueOf(minicurso.getData())); // Converte LocalDate para Date
+            statement.setString(3, minicurso.getLocal());
+            statement.setString(4, minicurso.getDescricao());
+            statement.setString(5, minicurso.getNomeInstrutor());
+            statement.setString(6, minicurso.getCpfInstrutor());
+            statement.setString(7, minicurso.getEmailInstrutor());
+            statement.setInt(8, minicurso.getNumeroVagas());
+            statement.setDate(9, Date.valueOf(minicurso.getDataLimiteInscricao())); // Converte LocalDate para Date
+            statement.setString(10, minicurso.getId());
+
+            statement.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar minicurso: " + e.getMessage());
+            return false;
         }
-        return minicursos;
     }
 
-    public Minicurso buscarPorId(String id) throws SQLException {
+    public boolean deletarMinicurso(String id) {
+        String sql = "DELETE FROM minicurso WHERE id = ?";
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, id);
+
+            int rowsAffected = statement.executeUpdate();
+
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao deletar minicurso: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Minicurso buscarMinicursoPorId(String id) {
         String sql = "SELECT * FROM minicurso WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Minicurso minicurso = new Minicurso();
-                    minicurso.setId(rs.getString("id"));
-                    minicurso.setNome(rs.getString("nome"));
-                    minicurso.setData(rs.getTimestamp("data").toLocalDateTime().toString());
-                    minicurso.setLocal(rs.getString("local"));
-                    minicurso.setDescricao(rs.getString("descricao"));
-                    minicurso.setNomeInstrutor(rs.getString("nomeInstrutor"));
-                    minicurso.setCpfInstrutor(rs.getString("cpfInstrutor"));
-                    minicurso.setEmailInstrutor(rs.getString("emailInstrutor"));
-                    minicurso.setNumeroVagas(rs.getInt("numeroVagas"));
-                    minicurso.setDataLimiteInscricao(rs.getTimestamp("dataLimiteInscricao").toLocalDateTime().toString());
-                    return minicurso;
-                }
+
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            statement.setString(1, id);
+
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+                Minicurso minicurso = new Minicurso();
+                minicurso.setId(result.getString("id"));
+                minicurso.setNome(result.getString("nome"));
+                minicurso.setData(result.getDate("data").toLocalDate()); // Converte Date para LocalDate
+                minicurso.setLocal(result.getString("local"));
+                minicurso.setDescricao(result.getString("descricao"));
+                minicurso.setNomeInstrutor(result.getString("nomeInstrutor"));
+                minicurso.setCpfInstrutor(result.getString("cpfInstrutor"));
+                minicurso.setEmailInstrutor(result.getString("emailInstrutor"));
+                minicurso.setNumeroVagas(result.getInt("numeroVagas"));
+                minicurso.setDataLimiteInscricao(result.getDate("dataLimiteInscricao").toLocalDate()); // Converte Date para LocalDate
+                return minicurso;
             }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar minicurso por ID: " + e.getMessage());
         }
+
         return null;
     }
 
-    public void atualizar(Minicurso minicurso) throws SQLException {
-        String sql = "UPDATE minicurso SET nome = ?, data = ?, local = ?, descricao = ?, nomeInstrutor = ?, cpfInstrutor = ?, " +
-                     "emailInstrutor = ?, numeroVagas = ?, dataLimiteInscricao = ? WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, minicurso.getNome());
-            stmt.setTimestamp(2, Timestamp.valueOf(minicurso.getData()));
-            stmt.setString(3, minicurso.getLocal());
-            stmt.setString(4, minicurso.getDescricao());
-            stmt.setString(5, minicurso.getNomeInstrutor());
-            stmt.setString(6, minicurso.getCpfInstrutor());
-            stmt.setString(7, minicurso.getEmailInstrutor());
-            stmt.setInt(8, minicurso.getNumeroVagas());
-            stmt.setTimestamp(9, Timestamp.valueOf(minicurso.getDataLimiteInscricao()));
-            stmt.setString(10, minicurso.getId());
-            stmt.executeUpdate();
-        }
-    }
+    public List<Minicurso> listarMinicursos() {
+        String sql = "SELECT * FROM minicurso";
+        List<Minicurso> minicursos = new ArrayList<>();
 
-    public void deletarPorId(String id) throws SQLException {
-        String sql = "DELETE FROM minicurso WHERE id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            stmt.executeUpdate();
+        Connection conn;
+        PreparedStatement statement;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+
+            statement = conn.prepareStatement(sql);
+
+            ResultSet result = statement.executeQuery();
+
+            while (result.next()) {
+                Minicurso minicurso = new Minicurso();
+                minicurso.setId(result.getString("id"));
+                minicurso.setNome(result.getString("nome"));
+                minicurso.setData(result.getDate("data").toLocalDate()); // Converte Date para LocalDate
+                minicurso.setLocal(result.getString("local"));
+                minicurso.setDescricao(result.getString("descricao"));
+                minicurso.setNomeInstrutor(result.getString("nomeInstrutor"));
+                minicurso.setCpfInstrutor(result.getString("cpfInstrutor"));
+                minicurso.setEmailInstrutor(result.getString("emailInstrutor"));
+                minicurso.setNumeroVagas(result.getInt("numeroVagas"));
+                minicurso.setDataLimiteInscricao(result.getDate("dataLimiteInscricao").toLocalDate()); // Converte Date para LocalDate
+                minicursos.add(minicurso);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar minicursos: " + e.getMessage());
         }
+
+        return minicursos;
     }
 }

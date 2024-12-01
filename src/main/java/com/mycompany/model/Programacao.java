@@ -7,8 +7,8 @@ public class Programacao {
 
     private String nome;
     private String descricao;
-    private String dataInicio; // Mantido como String para compatibilidade com JSON
-    private String dataFim;    // Mantido como String para compatibilidade com JSON
+    private String dataInicio; 
+    private String dataFim;    
     private String nomePalestrante;
     private String miniCurriculo;
 

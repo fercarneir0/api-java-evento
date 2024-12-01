@@ -1,21 +1,21 @@
 package com.mycompany.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Minicurso {
-
     private String id;
     private String nome;
     private String descricao;
-    private String data;
+    private LocalDate data; // Alterado para LocalDate
     private String local;
     private int capacidade;
     private String nomeInstrutor;
     private String cpfInstrutor;
     private String emailInstrutor;
     private int numeroVagas;
-    private String dataLimiteInscricao;
+    private LocalDate dataLimiteInscricao; // Alterado para LocalDate
 
     // Relacionamentos
     private List<Programacao> programacao = new ArrayList<>();
@@ -24,7 +24,7 @@ public class Minicurso {
     // Construtores
     public Minicurso() {}
 
-    public Minicurso(String id, String nome, String descricao, String data, String local, int capacidade) {
+    public Minicurso(String id, String nome, String descricao, LocalDate data, String local, int capacidade) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -59,11 +59,11 @@ public class Minicurso {
         this.descricao = descricao;
     }
 
-    public String getData() {
+    public LocalDate getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(LocalDate data) {
         this.data = data;
     }
 
@@ -137,13 +137,13 @@ public class Minicurso {
         this.numeroVagas = numeroVagas;
     }
 
-    public String getDataLimiteInscricao() {
+    public LocalDate getDataLimiteInscricao() {
         return dataLimiteInscricao;
     }
 
-    public void setDataLimiteInscricao(String dataLimiteInscricao) {
-        if (dataLimiteInscricao == null || dataLimiteInscricao.isEmpty()) {
-            throw new IllegalArgumentException("Data limite de inscrição não pode ser vazia.");
+    public void setDataLimiteInscricao(LocalDate dataLimiteInscricao) {
+        if (dataLimiteInscricao == null || (data != null && dataLimiteInscricao.isAfter(data))) {
+            throw new IllegalArgumentException("Data limite de inscrição inválida.");
         }
         this.dataLimiteInscricao = dataLimiteInscricao;
     }

@@ -1,7 +1,8 @@
 package com.mycompany.apijavaevents.Validator;
 
-
 import com.mycompany.model.Programacao;
+
+import java.time.LocalDateTime;
 
 public class ProgramacaoValidator {
 
@@ -13,12 +14,11 @@ public class ProgramacaoValidator {
             throw new IllegalArgumentException("As datas de início e fim da programação são obrigatórias.");
         }
 
-        try {
-            if (programacao.getDataInicioAsLocalDateTime().isAfter(programacao.getDataFimAsLocalDateTime())) {
-                throw new IllegalArgumentException("A data de início deve ser anterior ou igual à data de fim.");
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Erro ao processar as datas. Verifique o formato (yyyy-MM-dd'T'HH:mm:ss).", e);
+        LocalDateTime inicio = programacao.getDataInicioAsLocalDateTime();
+        LocalDateTime fim = programacao.getDataFimAsLocalDateTime();
+
+        if (inicio.isAfter(fim)) {
+            throw new IllegalArgumentException("A data de início deve ser anterior ou igual à data de fim.");
         }
     }
 }
