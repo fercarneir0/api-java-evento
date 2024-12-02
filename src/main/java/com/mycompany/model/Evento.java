@@ -7,24 +7,26 @@ import java.util.List;
 
 public class Evento {
 
-    private String id;
-    private String nome;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
-    private String local;
-    private String descricao;
-    private int numeroVagas;
-    private LocalDate dataLimiteInscricao;
-    private List<Participante> inscritos = new ArrayList<>();
-    private List<Programacao> programacao = new ArrayList<>();
-    private String cpfResponsavel;
-    private String emailResponsavel;
+    private String id; // Identificador único do evento
+    private String nome; // Nome do evento
+    private LocalDate dataInicio; // Data de início do evento
+    private LocalDate dataFim; // Data de término do evento
+    private String local; // Local do evento
+    private String descricao; // Descrição do evento
+    private int numeroVagas; // Número máximo de vagas disponíveis
+    private LocalDate dataLimiteInscricao; // Data limite para inscrições
+    private List<User> inscritos = new ArrayList<>(); // Lista de usuários inscritos
+    private List<Programacao> programacao = new ArrayList<>(); // Lista de programações do evento
+    private String cpfResponsavel; // CPF do responsável pelo evento
+    private String emailResponsavel; // E-mail do responsável pelo evento
 
-    
+    // Formatação padrão para datas
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    // Construtor padrão
     public Evento() {}
 
+    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -78,6 +80,9 @@ public class Evento {
     }
 
     public void setNumeroVagas(int numeroVagas) {
+        if (numeroVagas <= 0) {
+            throw new IllegalArgumentException("O número de vagas deve ser maior que zero.");
+        }
         this.numeroVagas = numeroVagas;
     }
 
@@ -89,11 +94,11 @@ public class Evento {
         this.dataLimiteInscricao = dataLimiteInscricao != null ? LocalDate.parse(dataLimiteInscricao, DATE_FORMATTER) : null;
     }
 
-    public List<Participante> getInscritos() {
+    public List<User> getInscritos() {
         return inscritos;
     }
 
-    public void setInscritos(List<Participante> inscritos) {
+    public void setInscritos(List<User> inscritos) {
         this.inscritos = inscritos;
     }
 
@@ -121,26 +126,23 @@ public class Evento {
         this.emailResponsavel = emailResponsavel;
     }
 
-   
-    public void adicionarInscrito(Participante participante) {
+    // Métodos de manipulação
+    public void adicionarInscrito(User user) {
         if (inscritos.size() >= numeroVagas) {
             throw new IllegalStateException("Número máximo de vagas atingido.");
         }
-        inscritos.add(participante);
-    }
-    
-    public boolean removerInscrito(String cpf) {
-        return inscritos.removeIf(participante -> participante.getCpf().equals(cpf));
+        inscritos.add(user);
     }
 
-  
+    public boolean removerInscrito(String cpf) {
+        return inscritos.removeIf(usuario -> usuario.getCpf().equals(cpf));
+    }
+
     public void adicionarProgramacao(Programacao programacaoItem) {
         programacao.add(programacaoItem);
     }
 
- 
     public void atualizarEvento(Evento eventoAtualizado) {
-       
         if (eventoAtualizado.getNome() != null) {
             this.nome = eventoAtualizado.getNome();
         }
@@ -168,9 +170,18 @@ public class Evento {
         if (eventoAtualizado.getEmailResponsavel() != null) {
             this.emailResponsavel = eventoAtualizado.getEmailResponsavel();
         }
-       
         if (eventoAtualizado.getProgramacao() != null && !eventoAtualizado.getProgramacao().isEmpty()) {
             this.programacao = eventoAtualizado.getProgramacao();
         }
+    }
+
+    // Verificação se o evento pode ser atualizado
+    public boolean podeSerAtualizado() {
+        return LocalDate.now().isBefore(dataInicio);
+    }
+
+    // Verificação se o evento pode ser removido
+    public boolean podeSerRemovido() {
+        return inscritos.isEmpty() && LocalDate.now().isBefore(dataInicio);
     }
 }
