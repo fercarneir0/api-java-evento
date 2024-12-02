@@ -1,5 +1,6 @@
 package com.mycompany.apijavaevents.resources;
 
+import com.mycompany.apijavaevents.security.Autorizar;
 import com.mycompany.controller.PalestraController;
 import com.mycompany.model.Palestra;
 import com.mycompany.model.Participante;
@@ -17,6 +18,7 @@ public class PalestraService {
     // Listar todas as palestras
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response listarPalestras() {
         try {
             List<Palestra> palestras = palestraController.listarPalestras();
@@ -33,6 +35,7 @@ public class PalestraService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response criarPalestra(Palestra palestra) {
         try {
             palestraController.criarPalestra(palestra);
@@ -49,6 +52,7 @@ public class PalestraService {
     @Path("{idPalestra}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response atualizarPalestra(@PathParam("idPalestra") String idPalestra, Palestra palestraAtualizada) {
         try {
             palestraController.atualizarPalestra(idPalestra, palestraAtualizada);
@@ -65,6 +69,7 @@ public class PalestraService {
     @Path("{idPalestra}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response inscreverParticipante(@PathParam("idPalestra") String idPalestra, Participante participante) {
         try {
             boolean sucesso = palestraController.inscreverParticipante(idPalestra, participante);
@@ -81,6 +86,7 @@ public class PalestraService {
     @DELETE
     @Path("{idPalestra}/inscricao/{cpf}")
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response removerParticipante(@PathParam("idPalestra") String idPalestra, @PathParam("cpf") String cpf) {
         try {
             boolean sucesso = palestraController.removerParticipante(idPalestra, cpf);

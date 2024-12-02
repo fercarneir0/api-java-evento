@@ -5,6 +5,7 @@ import com.mycompany.model.Evento;
 import com.mycompany.model.Programacao;
 import com.mycompany.model.User;
 import com.mycompany.apijavaevents.Validator.EventoValidator;
+import com.mycompany.apijavaevents.security.Autorizar;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -12,6 +13,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("evento")
+@Autorizar
 public class EventoService {
 
     private final EventoController eventoController = new EventoController();
@@ -19,6 +21,7 @@ public class EventoService {
     // Listar todos os eventos
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response listarEventos() {
         try {
             List<Evento> eventos = eventoController.listarEventos();
@@ -35,6 +38,7 @@ public class EventoService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response criarEvento(Evento evento) {
         try {
             EventoValidator.validarEvento(evento);
@@ -52,6 +56,7 @@ public class EventoService {
     @Path("{idEvento}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response atualizarEvento(@PathParam("idEvento") String idEvento, Evento evento) {
         try {
             Evento eventoExistente = eventoController.buscarEventoPorId(idEvento);
@@ -73,6 +78,7 @@ public class EventoService {
     @Path("{idEvento}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response inscreverUsuario(@PathParam("idEvento") String idEvento, User user) {
         try {
             boolean sucesso = eventoController.inscreverUser(idEvento, user);
@@ -91,6 +97,7 @@ public class EventoService {
     @DELETE
     @Path("{idEvento}/inscricao/{cpf}")
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response removerUsuario(@PathParam("idEvento") String idEvento, @PathParam("cpf") String cpf) {
         try {
             Evento evento = eventoController.buscarEventoPorId(idEvento);
@@ -112,6 +119,7 @@ public class EventoService {
     @Path("{idEvento}/programacao")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response adicionarProgramacao(@PathParam("idEvento") String idEvento, Programacao programacao) {
         try {
             boolean sucesso = eventoController.adicionarProgramacao(idEvento, programacao);
@@ -130,6 +138,7 @@ public class EventoService {
     @GET
     @Path("{idEvento}/programacao")
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response listarProgramacao(@PathParam("idEvento") String idEvento) {
         try {
             Evento evento = eventoController.buscarEventoPorId(idEvento);

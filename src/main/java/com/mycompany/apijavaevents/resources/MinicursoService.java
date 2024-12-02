@@ -1,5 +1,6 @@
 package com.mycompany.apijavaevents.resources;
 
+import com.mycompany.apijavaevents.security.Autorizar;
 import com.mycompany.controller.MinicursoController;
 import com.mycompany.model.Minicurso;
 import com.mycompany.model.Participante;
@@ -17,6 +18,7 @@ public class MinicursoService {
     // Listar todos os minicursos
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response listarMinicursos() {
         try {
             List<Minicurso> minicursos = minicursoController.listarMinicursos();
@@ -33,6 +35,7 @@ public class MinicursoService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response criarMinicurso(Minicurso minicurso) {
         try {
             minicursoController.criarMinicurso(minicurso);
@@ -49,6 +52,7 @@ public class MinicursoService {
     @Path("{idMinicurso}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response atualizarMinicurso(@PathParam("idMinicurso") String idMinicurso, Minicurso minicursoAtualizado) {
         try {
             minicursoController.atualizarMinicurso(idMinicurso, minicursoAtualizado);
@@ -65,6 +69,7 @@ public class MinicursoService {
     @Path("{idMinicurso}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response inscreverParticipante(@PathParam("idMinicurso") String idMinicurso, Participante participante) {
         try {
             boolean sucesso = minicursoController.inscreverParticipante(idMinicurso, participante);
@@ -81,6 +86,7 @@ public class MinicursoService {
     @GET
     @Path("{idMinicurso}/inscritos")
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response obterInscritos(@PathParam("idMinicurso") String idMinicurso) {
         try {
             Minicurso minicurso = minicursoController.buscarMinicursoPorId(idMinicurso);
@@ -100,6 +106,7 @@ public class MinicursoService {
     // Remover um participante inscrito de um minicurso
     @DELETE
     @Path("{idMinicurso}/inscricao/{cpf}")
+    @Autorizar
     @Produces(MediaType.APPLICATION_JSON)
     public Response removerParticipante(@PathParam("idMinicurso") String idMinicurso, @PathParam("cpf") String cpf) {
         try {
