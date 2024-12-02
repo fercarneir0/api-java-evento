@@ -1,5 +1,6 @@
 package com.mycompany.apijavaevents.resources;
 
+import com.mycompany.apijavaevents.security.Autorizar;
 import com.mycompany.controller.InscricaoMinicursoController;
 import com.mycompany.model.InscricaoMinicurso;
 import jakarta.ws.rs.Consumes;
@@ -14,6 +15,8 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("inscricao/minicurso")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class InscricaoMinicursoService {
 
     private InscricaoMinicursoController controller;
@@ -21,6 +24,7 @@ public class InscricaoMinicursoService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response inscreverUsuarioMinicurso(InscricaoMinicurso inscricao) {
         try {
             boolean sucesso = controller.inscreverUsuarioMinicurso(inscricao);
@@ -44,8 +48,11 @@ public class InscricaoMinicursoService {
                     .build();
         }
     }
+
     @GET
-    @Path("/listar/{minicursoId}")
+    @Path("{minicursoId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response listarInscritosPorMinicurso(@PathParam("minicursoId") int minicursoId) {
         try {
             List<InscricaoMinicurso> inscritos = controller.listarInscritosPorMinicurso(minicursoId);
@@ -62,7 +69,9 @@ public class InscricaoMinicursoService {
     }
 
     @DELETE
-    @Path("/remover/userId/minicursoId")
+    @Path("/remover/{userId}/{minicursoId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response removerInscricao(@PathParam("userId") int usuarioId, @PathParam("minicursoId") int minicursoId) {
         try {
             boolean sucesso = controller.removerInscricaoUsuario(usuarioId, minicursoId);

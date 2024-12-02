@@ -23,6 +23,9 @@ public class InscricaoEventoService {
     
     
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Autorizar
     public Response inscreverUsuarioEvento(InscricaoEvento inscricao) {
         try {
             boolean sucesso = inscricaoEventoBC.inscreverUsuarioEvento(inscricao);
@@ -49,6 +52,7 @@ public class InscricaoEventoService {
     
     @GET
     @Path("{eventoId}")
+    @Produces(MediaType.APPLICATION_JSON)
     @Autorizar
     public Response listarInscritos(@PathParam("eventoId")int eventoId){
         try{

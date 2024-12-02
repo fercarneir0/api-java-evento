@@ -12,7 +12,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
 import com.mycompany.apijavaevents.security.Autorizar;
 import com.mycompany.controller.LoginController;
 import com.mycompany.model.Login;
