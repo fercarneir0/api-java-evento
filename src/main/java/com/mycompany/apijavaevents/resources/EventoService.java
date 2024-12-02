@@ -2,8 +2,8 @@ package com.mycompany.apijavaevents.resources;
 
 import com.mycompany.controller.EventoController;
 import com.mycompany.model.Evento;
-import com.mycompany.model.Participante;
 import com.mycompany.model.Programacao;
+import com.mycompany.model.User;
 import com.mycompany.apijavaevents.Validator.EventoValidator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -16,6 +16,7 @@ public class EventoService {
 
     private final EventoController eventoController = new EventoController();
 
+    // Listar todos os eventos
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listarEventos() {
@@ -30,12 +31,12 @@ public class EventoService {
         }
     }
 
+    // Criar um novo evento
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response criarEvento(Evento evento) {
         try {
-            // Chama a validação antes de criar o evento
             EventoValidator.validarEvento(evento);
             eventoController.criarEvento(evento);
             return Response.status(Response.Status.CREATED).entity("{\"msg\":\"Evento criado com sucesso\"}").build();
@@ -46,6 +47,7 @@ public class EventoService {
         }
     }
 
+    // Atualizar um evento
     @PUT
     @Path("{idEvento}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -56,8 +58,6 @@ public class EventoService {
             if (eventoExistente == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\":\"Evento não encontrado\"}").build();
             }
-
-            // Validação adicional antes de atualizar
             EventoValidator.validarEvento(evento);
             eventoController.atualizarEvento(idEvento, evento);
             return Response.ok("{\"msg\":\"Evento atualizado com sucesso\"}").build();
@@ -68,13 +68,14 @@ public class EventoService {
         }
     }
 
+    // Inscrever um usuário em um evento
     @POST
     @Path("{idEvento}/inscricao")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response inscreverParticipante(@PathParam("idEvento") String idEvento, Participante participante) {
+    public Response inscreverUsuario(@PathParam("idEvento") String idEvento, User user) {
         try {
-            boolean sucesso = eventoController.inscreverParticipante(idEvento, participante);
+            boolean sucesso = eventoController.inscreverUser(idEvento, user);
             if (!sucesso) {
                 return Response.status(422).entity("{\"msg\":\"Número máximo de vagas atingido ou evento não encontrado\"}").build();
             }
@@ -86,25 +87,27 @@ public class EventoService {
         }
     }
 
+    // Remover um usuário inscrito de um evento
     @DELETE
     @Path("{idEvento}/inscricao/{cpf}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removerParticipante(@PathParam("idEvento") String idEvento, @PathParam("cpf") String cpf) {
+    public Response removerUsuario(@PathParam("idEvento") String idEvento, @PathParam("cpf") String cpf) {
         try {
             Evento evento = eventoController.buscarEventoPorId(idEvento);
             if (evento == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\":\"Evento não encontrado\"}").build();
             }
-            boolean sucesso = eventoController.removerParticipante(idEvento, cpf);
+            boolean sucesso = eventoController.removerUser(idEvento, cpf);
             if (!sucesso) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\":\"Participante não encontrado\"}").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\":\"Usuário não encontrado\"}").build();
             }
-            return Response.ok("{\"msg\":\"Participante removido com sucesso\"}").build();
+            return Response.ok("{\"msg\":\"Usuário removido com sucesso\"}").build();
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"msg\":\"Erro ao remover participante\"}").build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"msg\":\"Erro ao remover usuário\"}").build();
         }
     }
 
+    // Adicionar programação a um evento
     @POST
     @Path("{idEvento}/programacao")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -123,6 +126,7 @@ public class EventoService {
         }
     }
 
+    // Listar programação de um evento
     @GET
     @Path("{idEvento}/programacao")
     @Produces(MediaType.APPLICATION_JSON)
